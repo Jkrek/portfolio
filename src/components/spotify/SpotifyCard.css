@@ -1,0 +1,82 @@
+.spotify-card-link {
+    text-decoration: none;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 999;
+  }
+  
+  .spotify-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    transition: all 0.3s ease;
+    max-width: 320px;
+  }
+  
+  .dark-mode .spotify-card {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .spotify-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .spotify-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+  
+  .album-art {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    animation: spin 8s linear infinite;
+    border: 2px solid #1db954;
+  }
+  
+  .album-art.paused {
+    animation-play-state: paused;
+    border-color: #555;
+  }
+  
+  .song-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  .song-name {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #222;
+    white-space: nowrap;
+  }
+  
+  .dark-mode .song-name {
+    color: #fff;
+  }
+  
+  .artist-name {
+    font-size: 0.7rem;
+    color: #555;
+  }
+  
+  .dark-mode .artist-name {
+    color: #ccc;
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
