@@ -1,1 +1,345 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>DeveloperFolio | Developer Portfolio Template</title><meta name="title" content="DeveloperFolio | Developer Portfolio Template"><meta name="description" content="Software Developer Portfolio Template that helps you showcase your work and skills as a software developer"><meta property="og:type" content="website"><meta property="og:url" content="https://developerfolio.js.org/"><meta property="og:title" content="DeveloperFolio | Developer Portfolio Template"><meta property="og:description" content="Software Developer Portfolio Template that helps you showcase your work and skills as a software developer"><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://developerfolio.js.org/"><meta property="twitter:title" content="DeveloperFolio | Developer Portfolio Template"><meta property="twitter:description" content="Software Developer Portfolio Template that helps you showcase your work and skills as a software developer"><meta name="msapplication-TileColor" content="#603cba"><meta name="theme-color" content="#6c63ff"/><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v8=qAJ44G5Bm7"><link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v8=qAJ44G5Bm7"><link rel="mask-icon" href="/safari-pinned-tab.svg?v8=qAJ44G5Bm7" color="#885bd5"><link rel="shortcut icon" href="/favicon.ico?v8=qAJ44G5Bm7"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v8=qAJ44G5Bm7"><link rel="manifest" href="/manifest.json"/><link rel="preload" href="/static/media/Montserrat-Regular.ee653992.ttf" as="font" type="font/woff" crossorigin><link rel="preload" href="/static/media/Agustina.21f233e1.woff" as="font" type="font/woff" crossorigin><script async src="https://www.googletagmanager.com/gtag/js?id=UA-135618960-2"></script><script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","UA-135618960-2")</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/FortAwesome/Font-Awesome@5.15.4/css/all.min.css"><script defer="defer" src="/static/js/main.04756c0c.js"></script><link href="/static/css/main.f53d4d87.css" rel="stylesheet"></head><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root"></div></body></html>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jared Krekeler — Applied AI Engineer</title>
+  <meta name="description" content="Jared Krekeler — Applied AI Engineer building production ML &amp; LLM systems. GE Aerospace, P&amp;G, TQL. Creator of DraftVision.">
+  <link rel="icon" href="favicon.ico">
+  <meta property="og:title" content="Jared Krekeler — Applied AI Engineer">
+  <meta property="og:description" content="I build production ML &amp; LLM systems that ship. GE Aerospace · DraftVision.">
+  <meta property="og:image" content="https://portfolio.jkrek.com/scene2.png">
+  <meta property="og:url" content="https://portfolio.jkrek.com">
+  <meta name="twitter:card" content="summary_large_image">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;background:#04060c;}
+  *{box-sizing:border-box;}
+  ::selection{background:rgba(111,216,255,.3);}
+  #jkpage::-webkit-scrollbar{width:10px;}
+  #jkpage::-webkit-scrollbar-thumb{background:rgba(111,216,255,.22);border-radius:8px;}
+  #jkpage::-webkit-scrollbar-track{background:rgba(255,255,255,.02);}
+  @keyframes jkDot{0%,100%{opacity:.45;transform:scale(.85);}50%{opacity:1;transform:scale(1.2);}}
+  @keyframes jkBob{0%,100%{transform:translateY(0);opacity:.85;}50%{transform:translateY(7px);opacity:.4;}}
+  @keyframes jkScan{0%{transform:translateY(-30%);opacity:0;}12%{opacity:.5;}88%{opacity:.5;}100%{transform:translateY(520%);opacity:0;}}
+  @keyframes jkGlow{0%{background-position:0% 0;}100%{background-position:300% 0;}}
+</style>
+</helmet>
+<div style="position:fixed;inset:0;overflow:hidden;background:#04060c;font-family:'Space Grotesk',system-ui,sans-serif;color:#e8eef7;">
+
+  <!-- ============ SCENE (video room) ============ -->
+  <div ref="{{ sceneRef }}" onClick="{{ onEnter }}" style="position:absolute;inset:0;z-index:1;transform-origin:33% 39%;transform:scale(1);opacity:1;filter:none;cursor:pointer;transition:transform 1.75s cubic-bezier(.62,0,.2,1),filter 1.75s ease,opacity 1.75s ease;">
+    <video ref="{{ videoRef }}" src="scene.mp4" muted playsinline preload="auto" onEnded="{{ onVideoEnded }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:32% 40%;"></video>
+    <div style="position:absolute;left:3.5%;top:3.5%;width:59%;height:70%;overflow:hidden;pointer-events:none;mix-blend-mode:screen;">
+      <div style="position:absolute;left:0;right:0;height:30%;background:linear-gradient(180deg,rgba(120,210,255,.16),transparent);animation:jkScan 6s linear infinite;"></div>
+    </div>
+    <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 105% at 40% 42%,transparent 46%,rgba(2,4,10,.5) 84%,rgba(1,2,6,.9) 100%);"></div>
+  </div>
+
+  <!-- ============ ENTER PROMPT ============ -->
+  <sc-if value="{{ showPrompt }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ onEnter }}" style="position:absolute;left:0;right:0;bottom:6%;z-index:20;display:flex;flex-direction:column;align-items:center;gap:14px;cursor:pointer;">
+      <button onClick="{{ onEnter }}" style="display:inline-flex;align-items:center;gap:12px;padding:14px 26px;border-radius:999px;border:1px solid rgba(111,216,255,.5);background:rgba(6,20,32,.55);backdrop-filter:blur(10px);color:#dff3ff;font-family:'Michroma',sans-serif;font-size:12px;letter-spacing:3px;cursor:pointer;text-transform:uppercase;" style-hover="border-color:rgba(111,216,255,.9);background:rgba(10,30,46,.72);box-shadow:0 0 34px rgba(80,180,255,.4);">
+        Enter Portfolio
+        <span style="font-size:15px;">&#9654;</span>
+      </button>
+      <div style="font-size:11px;letter-spacing:2px;color:#7d93b0;text-transform:uppercase;animation:jkBob 2s ease-in-out infinite;">click the screen</div>
+    </div>
+  </sc-if>
+
+  <!-- ============ TAP-TO-PLAY FALLBACK ============ -->
+  <sc-if value="{{ needsTapToPlay }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ onManualPlay }}" style="position:absolute;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:rgba(4,6,12,.4);cursor:pointer;">
+      <div style="width:78px;height:78px;border-radius:50%;border:1px solid rgba(111,216,255,.6);background:rgba(8,22,34,.7);display:flex;align-items:center;justify-content:center;color:#dff3ff;font-size:26px;box-shadow:0 0 40px rgba(80,180,255,.4);">&#9654;</div>
+    </div>
+  </sc-if>
+
+  <!-- ============ REPLAY (settled) ============ -->
+  <sc-if value="{{ showReplay }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ onReplay }}" style="position:fixed;right:22px;bottom:20px;z-index:40;display:inline-flex;align-items:center;gap:9px;padding:9px 15px;border-radius:999px;border:1px solid rgba(120,200,255,.28);background:rgba(8,16,26,.7);backdrop-filter:blur(8px);color:#9fb6d2;font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:1.5px;cursor:pointer;text-transform:uppercase;" style-hover="color:#dff3ff;border-color:rgba(120,200,255,.6);">
+      &#8635; Replay intro
+    </button>
+  </sc-if>
+
+  <!-- ============ PORTFOLIO PAGE (the screen becomes the site) ============ -->
+  <div id="jkpage" ref="{{ pageRef }}" style="position:absolute;inset:0;z-index:10;transform-origin:0 0;transform:translate(3.5%,3.5%) scale(.59,.70);opacity:0;overflow:hidden;pointer-events:none;scroll-behavior:smooth;transition:transform 1.75s cubic-bezier(.62,0,.2,1),opacity 1.2s ease;">
+    <div style="min-height:100%;background:radial-gradient(120% 80% at 80% -10%,rgba(60,120,255,.14),transparent 60%),radial-gradient(90% 60% at -10% 20%,rgba(111,216,255,.1),transparent 55%),#05070e;">
+
+      <!-- NAV -->
+      <nav style="position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px clamp(20px,5vw,64px);background:rgba(5,7,14,.72);backdrop-filter:blur(14px);border-bottom:1px solid rgba(120,200,255,.1);">
+        <a href="#top" style="font-family:'Michroma',sans-serif;font-size:19px;letter-spacing:2px;color:#fff;text-decoration:none;text-shadow:0 0 20px rgba(111,200,255,.5);">J<span style="color:#6fd8ff;">.</span>K</a>
+        <div style="display:flex;align-items:center;gap:clamp(14px,2.4vw,34px);">
+          <a href="#about" style="color:#a8bcd6;text-decoration:none;font-size:14px;letter-spacing:.5px;" style-hover="color:#6fd8ff;">About</a>
+          <a href="#work" style="color:#a8bcd6;text-decoration:none;font-size:14px;letter-spacing:.5px;" style-hover="color:#6fd8ff;">Work</a>
+          <a href="#experience" style="color:#a8bcd6;text-decoration:none;font-size:14px;letter-spacing:.5px;" style-hover="color:#6fd8ff;">Experience</a>
+          <a href="#contact" style="display:inline-flex;align-items:center;gap:8px;padding:8px 15px;border:1px solid rgba(111,216,255,.4);border-radius:999px;color:#6fd8ff;text-decoration:none;font-size:12px;letter-spacing:1px;" style-hover="background:rgba(111,216,255,.1);border-color:rgba(111,216,255,.8);">
+            <span style="width:6px;height:6px;border-radius:50%;background:#4dffa3;box-shadow:0 0 8px #4dffa3;animation:jkDot 2.2s ease-in-out infinite;"></span>Open to 2027 roles
+          </a>
+        </div>
+      </nav>
+
+      <!-- HERO -->
+      <section id="top" style="max-width:1080px;margin:0 auto;padding:clamp(56px,10vw,120px) clamp(20px,5vw,64px) clamp(40px,7vw,88px);">
+        <div style="display:inline-flex;align-items:center;gap:9px;padding:6px 14px;border:1px solid rgba(120,200,255,.22);border-radius:999px;color:#7fd3ff;font-family:'Michroma',sans-serif;font-size:10px;letter-spacing:2.5px;margin-bottom:28px;">
+          <span style="width:6px;height:6px;border-radius:50%;background:#7fd3ff;box-shadow:0 0 8px #7fd3ff;"></span>APPLIED AI ENGINEER @ GE AEROSPACE
+        </div>
+        <h1 style="font-family:'Michroma',sans-serif;font-size:clamp(38px,7vw,84px);line-height:1.04;margin:0 0 24px;letter-spacing:-1px;">Hi, I'm <span style="color:#6fd8ff;text-shadow:0 0 40px rgba(111,216,255,.4);">Jared.</span></h1>
+        <p style="font-size:clamp(18px,2.6vw,26px);line-height:1.5;color:#b7c8e0;max-width:680px;margin:0 0 40px;text-wrap:pretty;">I build ML that leaves the notebook. Production LLM agents on the factory floor at GE Aerospace, a pricing model brokers trade on, and a full-stack NFL draft engine serving thousands &mdash; shipped, not slideware.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;">
+          <a href="#work" style="display:inline-flex;align-items:center;gap:10px;padding:15px 26px;border-radius:12px;background:linear-gradient(100deg,#4a86ff,#6fd8ff);background-size:200% 100%;color:#031018;font-weight:600;font-size:15px;text-decoration:none;box-shadow:0 10px 34px rgba(80,150,255,.32);animation:jkGlow 5s linear infinite;" style-hover="box-shadow:0 12px 44px rgba(80,150,255,.5);">View My Work &rarr;</a>
+          <a href="https://draft.jkrek.com" target="_blank" style="display:inline-flex;align-items:center;gap:10px;padding:15px 26px;border-radius:12px;border:1px solid rgba(120,200,255,.28);color:#dbe8f8;font-weight:500;font-size:15px;text-decoration:none;background:rgba(255,255,255,.02);" style-hover="border-color:rgba(120,200,255,.7);background:rgba(120,200,255,.06);">&#127944; Live: DraftVision</a>
+        </div>
+      </section>
+
+      <!-- ABOUT -->
+      <section id="about" style="max-width:1080px;margin:0 auto;padding:clamp(30px,5vw,60px) clamp(20px,5vw,64px);border-top:1px solid rgba(120,200,255,.08);">
+        <div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:clamp(28px,5vw,72px);align-items:start;">
+          <div>
+            <div style="font-family:'Michroma',sans-serif;font-size:11px;letter-spacing:3px;color:#6fd8ff;margin-bottom:20px;">01 &mdash; ABOUT</div>
+            <p style="font-size:clamp(17px,2.2vw,21px);line-height:1.65;color:#c2d2e8;margin:0 0 18px;text-wrap:pretty;">I'm a senior at the University of Cincinnati (Computer Science, Statistics minor), graduating Fall 2026. I'm drawn to the messy edge where ML meets the real world &mdash; agents on the factory floor, models that move real business metrics, and a football obsession I turned into a deployed prediction platform.</p>
+            <p style="font-size:15px;line-height:1.65;color:#8ba1bd;margin:0;text-wrap:pretty;">Right now I'm an Applied AI Engineer Intern at GE Aerospace, where my work earned three Corporate Impact Awards. AWS Certified (AI Practitioner &amp; Cloud Practitioner). Always shipping.</p>
+          </div>
+          <div style="display:grid;gap:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;padding:18px 20px;border:1px solid rgba(120,200,255,.12);border-radius:14px;background:rgba(255,255,255,.02);">
+              <div style="font-family:'Michroma',sans-serif;font-size:30px;color:#6fd8ff;">3&times;</div>
+              <div style="font-size:13px;color:#8ba1bd;text-align:right;">GE Corporate<br>Impact Awards</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;padding:18px 20px;border:1px solid rgba(120,200,255,.12);border-radius:14px;background:rgba(255,255,255,.02);">
+              <div style="font-family:'Michroma',sans-serif;font-size:30px;color:#6fd8ff;">50%</div>
+              <div style="font-size:13px;color:#8ba1bd;text-align:right;">CMM rework<br>lead-time cut</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;padding:18px 20px;border:1px solid rgba(120,200,255,.12);border-radius:14px;background:rgba(255,255,255,.02);">
+              <div style="font-family:'Michroma',sans-serif;font-size:30px;color:#6fd8ff;">9K+</div>
+              <div style="font-size:13px;color:#8ba1bd;text-align:right;">prospects modeled<br>(DraftVision)</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- WORK / PROJECTS -->
+      <section id="work" style="max-width:1080px;margin:0 auto;padding:clamp(40px,6vw,80px) clamp(20px,5vw,64px);">
+        <div style="font-family:'Michroma',sans-serif;font-size:11px;letter-spacing:3px;color:#6fd8ff;margin-bottom:10px;">02 &mdash; SELECTED WORK</div>
+        <h2 style="font-family:'Michroma',sans-serif;font-size:clamp(26px,4vw,42px);margin:0 0 36px;letter-spacing:-.5px;">Built it. Shipped it.</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;">
+          <sc-for list="{{ projects }}" as="p" hint-placeholder-count="3">
+            <a href="{{ p.href }}" target="_blank" style="display:flex;flex-direction:column;padding:24px;border:1px solid rgba(120,200,255,.12);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.01));text-decoration:none;color:inherit;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;" style-hover="transform:translateY(-6px);border-color:rgba(111,216,255,.5);box-shadow:0 18px 44px rgba(0,0,0,.4),0 0 40px rgba(80,160,255,.12);">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                <div style="width:44px;height:44px;border-radius:12px;background:{{ p.tint }};display:flex;align-items:center;justify-content:center;font-family:'Michroma',sans-serif;font-size:16px;color:#eaf6ff;">{{ p.mark }}</div>
+                <span style="color:#6fd8ff;font-size:18px;">&#8599;</span>
+              </div>
+              <div style="font-family:'Michroma',sans-serif;font-size:18px;margin-bottom:8px;">{{ p.name }}</div>
+              <p style="font-size:14px;line-height:1.55;color:#93a8c4;margin:0 0 18px;flex:1;text-wrap:pretty;">{{ p.desc }}</p>
+              <div style="display:flex;flex-wrap:wrap;gap:7px;">
+                <sc-for list="{{ p.tags }}" as="t" hint-placeholder-count="3">
+                  <span style="padding:5px 11px;border-radius:999px;border:1px solid rgba(120,200,255,.16);font-size:11px;letter-spacing:.5px;color:#8fb6dd;">{{ t }}</span>
+                </sc-for>
+              </div>
+            </a>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- EXPERIENCE -->
+      <section id="experience" style="max-width:1080px;margin:0 auto;padding:clamp(40px,6vw,80px) clamp(20px,5vw,64px);border-top:1px solid rgba(120,200,255,.08);">
+        <div style="font-family:'Michroma',sans-serif;font-size:11px;letter-spacing:3px;color:#6fd8ff;margin-bottom:10px;">03 &mdash; EXPERIENCE</div>
+        <h2 style="font-family:'Michroma',sans-serif;font-size:clamp(26px,4vw,42px);margin:0 0 36px;letter-spacing:-.5px;">Where I've shipped</h2>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <sc-for list="{{ experience }}" as="x" hint-placeholder-count="3">
+            <div style="padding:24px clamp(20px,3vw,30px);border:1px solid rgba(120,200,255,.12);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.008));">
+              <div style="display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:12px;">
+                <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(17px,2.2vw,21px);"><span style="color:#6fd8ff;">{{ x.co }}</span> &mdash; {{ x.role }}</div>
+                <div style="font-family:'Michroma',sans-serif;font-size:11px;letter-spacing:1px;color:#7d93b0;">{{ x.when }}</div>
+              </div>
+              <ul style="margin:0;padding-left:18px;color:#a7bad4;font-size:14.5px;line-height:1.6;">
+                <sc-for list="{{ x.points }}" as="pt" hint-placeholder-count="2">
+                  <li style="margin-bottom:5px;">{{ pt }}</li>
+                </sc-for>
+              </ul>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- SKILLS -->
+      <section id="skills" style="max-width:1080px;margin:0 auto;padding:clamp(30px,5vw,60px) clamp(20px,5vw,64px);border-top:1px solid rgba(120,200,255,.08);">
+        <div style="font-family:'Michroma',sans-serif;font-size:11px;letter-spacing:3px;color:#6fd8ff;margin-bottom:28px;">04 &mdash; STACK</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:26px;">
+          <sc-for list="{{ skills }}" as="g" hint-placeholder-count="3">
+            <div>
+              <div style="font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:#7d93b0;margin-bottom:14px;">{{ g.group }}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                <sc-for list="{{ g.items }}" as="s" hint-placeholder-count="4">
+                  <span style="padding:8px 14px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(120,200,255,.12);font-size:13px;color:#cfdcee;" style-hover="border-color:rgba(111,216,255,.5);color:#fff;">{{ s }}</span>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- CONTACT -->
+      <section id="contact" style="max-width:1080px;margin:0 auto;padding:clamp(56px,9vw,120px) clamp(20px,5vw,64px);">
+        <div style="border:1px solid rgba(120,200,255,.15);border-radius:26px;padding:clamp(34px,6vw,72px);background:radial-gradient(120% 130% at 100% 0%,rgba(74,134,255,.16),transparent 60%),rgba(255,255,255,.02);text-align:center;">
+          <div style="font-family:'Michroma',sans-serif;font-size:11px;letter-spacing:3px;color:#6fd8ff;margin-bottom:18px;">05 &mdash; CONTACT</div>
+          <h2 style="font-family:'Michroma',sans-serif;font-size:clamp(28px,5vw,52px);margin:0 0 18px;letter-spacing:-.5px;line-height:1.1;">Let's build<br>something intelligent.</h2>
+          <p style="font-size:16px;color:#a3b6d0;max-width:480px;margin:0 auto 34px;text-wrap:pretty;">Graduating Fall 2026 and open to new-grad roles in ML/AI Engineering, Data Science, and Software Engineering.</p>
+          <a href="mailto:krekeljd@mail.uc.edu" style="display:inline-flex;align-items:center;gap:10px;padding:16px 30px;border-radius:12px;background:linear-gradient(100deg,#4a86ff,#6fd8ff);color:#031018;font-weight:600;font-size:16px;text-decoration:none;box-shadow:0 10px 34px rgba(80,150,255,.32);" style-hover="box-shadow:0 12px 46px rgba(80,150,255,.5);">krekeljd@mail.uc.edu</a>
+          <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:22px;margin-top:34px;">
+            <a href="https://github.com/Jkrek" target="_blank" style="color:#8ba1bd;text-decoration:none;font-size:13px;letter-spacing:1px;" style-hover="color:#6fd8ff;">GitHub</a>
+            <a href="https://www.linkedin.com/in/jaredkrekeler/" target="_blank" style="color:#8ba1bd;text-decoration:none;font-size:13px;letter-spacing:1px;" style-hover="color:#6fd8ff;">LinkedIn</a>
+            <a href="https://draft.jkrek.com" target="_blank" style="color:#8ba1bd;text-decoration:none;font-size:13px;letter-spacing:1px;" style-hover="color:#6fd8ff;">DraftVision</a>
+            <a href="https://youtube.com/@jkrek" target="_blank" style="color:#8ba1bd;text-decoration:none;font-size:13px;letter-spacing:1px;" style-hover="color:#6fd8ff;">YouTube</a>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:40px;font-size:12px;letter-spacing:1px;color:#5c6f88;">&copy; 2026 Jared Krekeler &mdash; built in the loop</div>
+      </section>
+
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  videoRef = React.createRef();
+  sceneRef = React.createRef();
+  pageRef = React.createRef();
+
+  projects = [
+    { name:'DraftVision', mark:'DV', tint:'linear-gradient(135deg,#4a86ff,#7f5bff)', href:'https://draft.jkrek.com',
+      desc:'An NFL draft engine. Scores 9,000+ college & high-school prospects with a calibrated XGBoost/CatBoost ensemble (~73% accuracy), live sports APIs, and Claude Vision mock-draft imports. Live on Docker/Fly.io — go break it.',
+      tags:['Python','React','XGBoost','Docker'] },
+    { name:'RL Football Bot', mark:'RL', tint:'linear-gradient(135deg,#6fd8ff,#4aa0ff)', href:'https://github.com/Jkrek/rl-football-play-caller',
+      desc:'A Deep Q-Network that learns to call plays from real NFL drive data — trained in a custom Gymnasium environment, with animated drives so you can watch what it actually learned.',
+      tags:['PyTorch','Gymnasium','RL'] },
+    { name:'MedicalParse', mark:'MP', tint:'linear-gradient(135deg,#8a6bff,#5bc8ff)', href:'https://github.com/Jkrek/Medical-Parse',
+      desc:'A symptom checker that maps free-text symptoms to the ten most likely conditions, pairing OpenAI reasoning with WHO clinical data.',
+      tags:['Python','Flask','LLM'] },
+  ];
+  experience = [
+    { co:'GE Aerospace', role:'Applied AI Engineer Intern', when:'DEC 2025 — PRESENT', points:[
+      'Built & own a production RAG assistant over engineering drawings that cut CMM rework lead time by half — one of three projects that earned Corporate Impact Awards.',
+      'Shipped agentic automation (MCP + HPC) that compressed ~6 months of manual work into 5 days.',
+      'Rolled out AI tooling to 30+ engineers and built QC-Calcite — a tool 200+ colleagues use, error-free in production.',
+    ]},
+    { co:'P&G Digital Accelerator', role:'Data Science Intern', when:'AUG — DEC 2025', points:[
+      'Built a computer-vision → surrogate-neural-net pipeline that made KPI prediction 30% faster and cut downtime 15%.',
+      'Shipped AI-agent workflows that saved ~10 hrs/week and lifted throughput 18%.',
+    ]},
+    { co:'TQL', role:'Data Science & Analytics Intern', when:'JAN — AUG 2025', points:[
+      'Fine-tuned a production XGBoost pricing model, lifting real-time rate-recommendation accuracy 8% — brokers quote loads on it.',
+      'Built a PowerBI dashboard Sales VPs use to guide coaching and performance strategy.',
+    ]},
+  ];
+  skills = [
+    { group:'Languages', items:['Python','C++','SQL','R','JavaScript'] },
+    { group:'AI / ML', items:['PyTorch','TensorFlow','XGBoost','LLM Agents','RAG','MCP','OpenCV'] },
+    { group:'Data & Cloud', items:['AWS','Azure','Databricks','Docker','PowerBI','Git'] },
+  ];
+
+  state = { showPrompt:false, needsTapToPlay:false, showReplay:false };
+  p = 0;        // 0 = intro (in-screen), 1 = open (full page)
+  target = 0;
+  _settledDone = false;
+
+  // continuous rAF stamps transforms every frame so the framework's
+  // per-frame restamping of literal inline styles never wins.
+  stamp(){
+    const p = this.p, pg = this.pageRef.current, sc = this.sceneRef.current;
+    if(pg){
+      const tx = (3.5*(1-p)).toFixed(2);
+      const sx = (0.59+0.41*p).toFixed(4);
+      const sy = (0.70+0.30*p).toFixed(4);
+      pg.style.transform = `translate(${tx}%,${tx}%) scale(${sx},${sy})`;
+      pg.style.opacity = Math.min(1, p*1.5).toFixed(3);
+      pg.style.pointerEvents = p>0.5 ? 'auto' : 'none';
+      const ov = p>0.985 ? 'auto' : 'hidden';
+      if(pg.style.overflowY !== ov) pg.style.overflowY = ov;
+    }
+    if(sc){
+      sc.style.transform = `scale(${(1+0.95*p).toFixed(3)})`;
+      sc.style.filter = `blur(${(8*p).toFixed(2)}px) brightness(${(1-0.45*p).toFixed(3)})`;
+      sc.style.opacity = (1-p).toFixed(3);
+      sc.style.pointerEvents = p>0.05 ? 'none' : 'auto';
+      sc.style.cursor = p>0.05 ? 'default' : 'pointer';
+    }
+  }
+
+  loop = ()=>{
+    this.p += (this.target - this.p) * 0.055;
+    if(this.target===1 && this.p>0.999) this.p = 1;
+    if(this.target===0 && this.p<0.001) this.p = 0;
+    this.stamp();
+    // settle bookkeeping
+    if(this.target===1 && this.p>0.99 && !this._settledDone){
+      this._settledDone = true;
+      try{ localStorage.setItem('jk_phase','settled'); }catch(e){}
+      this.setState({ showReplay:true });
+    }
+    this._raf = requestAnimationFrame(this.loop);
+  };
+
+  componentDidMount(){
+    let settled = false;
+    try { settled = localStorage.getItem('jk_phase') === 'settled'; } catch(e){}
+    if(settled){
+      this.p = 1; this.target = 1; this._settledDone = true;
+      this.setState({ showReplay:true });
+    } else {
+      const v = this.videoRef.current;
+      if(v){ const pr = v.play(); if(pr&&pr.catch) pr.catch(()=>this.setState({needsTapToPlay:true})); }
+      this._pt = setTimeout(()=>{ if(this.target===0) this.setState({showPrompt:true}); }, 3200);
+      this._wheel = (e)=>{ if(this.target===0 && e.deltaY>6) this.enter(); };
+      window.addEventListener('wheel', this._wheel, {passive:true});
+    }
+    this.stamp();
+    this._raf = requestAnimationFrame(this.loop);
+  }
+  componentWillUnmount(){
+    clearTimeout(this._pt);
+    if(this._raf) cancelAnimationFrame(this._raf);
+    if(this._wheel) window.removeEventListener('wheel', this._wheel);
+  }
+
+  enter = ()=>{
+    if(this.target===1) return;
+    this.target = 1;
+    this.setState({ showPrompt:false, needsTapToPlay:false });
+  };
+
+  manualPlay = ()=>{
+    const v=this.videoRef.current; if(v) v.play().catch(()=>{});
+    this.setState({ needsTapToPlay:false });
+  };
+
+  replay = ()=>{
+    try{ localStorage.setItem('jk_phase','intro'); }catch(e){}
+    this._settledDone = false;
+    this.target = 0;
+    const pg = this.pageRef.current; if(pg) pg.scrollTop = 0;
+    const v=this.videoRef.current;
+    this.setState({ showReplay:false, showPrompt:false });
+    if(v){ try{ v.currentTime=0; }catch(e){} v.play().catch(()=>this.setState({needsTapToPlay:true})); }
+    clearTimeout(this._pt);
+    this._pt = setTimeout(()=>{ if(this.target===0) this.setState({showPrompt:true}); }, 3000);
+  };
+
+  renderVals(){
+    return {
+      videoRef:this.videoRef, sceneRef:this.sceneRef, pageRef:this.pageRef,
+      projects:this.projects, experience:this.experience, skills:this.skills,
+      showPrompt:this.state.showPrompt, needsTapToPlay:this.state.needsTapToPlay, showReplay:this.state.showReplay,
+      onEnter:this.enter, onManualPlay:this.manualPlay, onReplay:this.replay, onVideoEnded:this.enter,
+    };
+  }
+}
+</script>
+</body>
+</html>
