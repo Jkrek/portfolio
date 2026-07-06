@@ -30,6 +30,10 @@
   @keyframes jkBob{0%,100%{transform:translateY(0);opacity:.85;}50%{transform:translateY(7px);opacity:.4;}}
   @keyframes jkScan{0%{transform:translateY(-30%);opacity:0;}12%{opacity:.5;}88%{opacity:.5;}100%{transform:translateY(520%);opacity:0;}}
   @keyframes jkGlow{0%{background-position:0% 0;}100%{background-position:300% 0;}}
+  @keyframes jkFloatA{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(46px,34px) scale(1.08);}}
+  @keyframes jkFloatB{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(-40px,28px) scale(1.05);}}
+  @keyframes jkFloatC{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(30px,-36px) scale(1.1);}}
+  @keyframes jkDrift{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
 </style>
 </helmet>
 <div style="position:fixed;inset:0;overflow:hidden;background:#04060c;font-family:'Space Grotesk',system-ui,sans-serif;color:#e8eef7;">
@@ -70,7 +74,25 @@
 
   <!-- ============ PORTFOLIO PAGE (the screen becomes the site) ============ -->
   <div id="jkpage" ref="{{ pageRef }}" style="position:absolute;inset:0;z-index:10;transform-origin:0 0;transform:translate(3.5%,3.5%) scale(.59,.70);opacity:0;overflow:hidden;pointer-events:none;scroll-behavior:smooth;transition:transform 1.75s cubic-bezier(.62,0,.2,1),opacity 1.2s ease;">
-    <div style="min-height:100%;background:radial-gradient(120% 80% at 80% -10%,rgba(60,120,255,.14),transparent 60%),radial-gradient(90% 60% at -10% 20%,rgba(111,216,255,.1),transparent 55%),#05070e;">
+    <div style="position:relative;min-height:100%;background:linear-gradient(180deg,#070b16,#04060e 45%,#080c1a);background-size:100% 100%;">
+
+      <!-- ===== ANIMATED BACKDROP ===== -->
+      <div style="position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;">
+        <!-- moving aurora wash -->
+        <div style="position:absolute;inset:-30%;background:linear-gradient(115deg,rgba(74,134,255,.16),rgba(111,216,255,.05) 30%,transparent 48%,rgba(127,91,255,.14) 70%,rgba(74,134,255,.10));background-size:220% 220%;animation:jkDrift 30s ease-in-out infinite;filter:blur(24px);"></div>
+        <!-- floating glow orbs distributed down the page -->
+        <div style="position:absolute;top:1%;left:66%;width:min(46vw,560px);height:min(46vw,560px);border-radius:50%;background:radial-gradient(circle,rgba(74,134,255,.32),transparent 66%);filter:blur(38px);animation:jkFloatA 26s ease-in-out infinite;"></div>
+        <div style="position:absolute;top:26%;left:-8%;width:min(42vw,520px);height:min(42vw,520px);border-radius:50%;background:radial-gradient(circle,rgba(127,91,255,.26),transparent 66%);filter:blur(42px);animation:jkFloatB 32s ease-in-out infinite;"></div>
+        <div style="position:absolute;top:52%;left:72%;width:min(40vw,500px);height:min(40vw,500px);border-radius:50%;background:radial-gradient(circle,rgba(111,216,255,.24),transparent 66%);filter:blur(40px);animation:jkFloatC 29s ease-in-out infinite;"></div>
+        <div style="position:absolute;top:80%;left:4%;width:min(44vw,540px);height:min(44vw,540px);border-radius:50%;background:radial-gradient(circle,rgba(74,134,255,.22),transparent 66%);filter:blur(44px);animation:jkFloatA 34s ease-in-out infinite;"></div>
+        <!-- faint tech grid -->
+        <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(120,190,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(120,190,255,.05) 1px,transparent 1px);background-size:46px 46px;mask-image:radial-gradient(150% 90% at 50% 0%,#000 30%,transparent 82%);-webkit-mask-image:radial-gradient(150% 90% at 50% 0%,#000 30%,transparent 82%);"></div>
+        <!-- top glow anchor + bottom vignette -->
+        <div style="position:absolute;inset:0;background:radial-gradient(120% 55% at 50% -8%,rgba(80,160,255,.14),transparent 60%),linear-gradient(180deg,transparent 72%,rgba(2,4,10,.6));"></div>
+      </div>
+
+      <!-- ===== CONTENT ===== -->
+      <div style="position:relative;z-index:1;">
 
       <!-- NAV -->
       <nav style="position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px clamp(20px,5vw,64px);background:rgba(5,7,14,.72);backdrop-filter:blur(14px);border-bottom:1px solid rgba(120,200,255,.1);">
@@ -79,6 +101,7 @@
           <a href="#about" style="color:#a8bcd6;text-decoration:none;font-size:14px;letter-spacing:.5px;" style-hover="color:#6fd8ff;">About</a>
           <a href="#work" style="color:#a8bcd6;text-decoration:none;font-size:14px;letter-spacing:.5px;" style-hover="color:#6fd8ff;">Work</a>
           <a href="#experience" style="color:#a8bcd6;text-decoration:none;font-size:14px;letter-spacing:.5px;" style-hover="color:#6fd8ff;">Experience</a>
+          <button onClick="{{ onReplay }}" title="Replay the intro animation" style="display:inline-flex;align-items:center;gap:7px;background:none;border:none;padding:0;color:#a8bcd6;font-family:'Space Grotesk',sans-serif;font-size:14px;letter-spacing:.5px;cursor:pointer;" style-hover="color:#6fd8ff;">&#8635; Intro</button>
           <a href="#contact" style="display:inline-flex;align-items:center;gap:8px;padding:8px 15px;border:1px solid rgba(111,216,255,.4);border-radius:999px;color:#6fd8ff;text-decoration:none;font-size:12px;letter-spacing:1px;" style-hover="background:rgba(111,216,255,.1);border-color:rgba(111,216,255,.8);">
             <span style="width:6px;height:6px;border-radius:50%;background:#4dffa3;box-shadow:0 0 8px #4dffa3;animation:jkDot 2.2s ease-in-out infinite;"></span>Open to 2027 roles
           </a>
@@ -207,6 +230,7 @@
         <div style="text-align:center;margin-top:40px;font-size:12px;letter-spacing:1px;color:#5c6f88;">&copy; 2026 Jared Krekeler &mdash; built in the loop</div>
       </section>
 
+      </div><!-- /content -->
     </div>
   </div>
 
