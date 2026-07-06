@@ -130,9 +130,15 @@
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;">
           <sc-for list="{{ projects }}" as="p" hint-placeholder-count="3">
             <a href="{{ p.href }}" target="_blank" style="display:flex;flex-direction:column;padding:24px;border:1px solid rgba(120,200,255,.12);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.01));text-decoration:none;color:inherit;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;" style-hover="transform:translateY(-6px);border-color:rgba(111,216,255,.5);box-shadow:0 18px 44px rgba(0,0,0,.4),0 0 40px rgba(80,160,255,.12);">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-                <div style="width:44px;height:44px;border-radius:12px;background:{{ p.tint }};display:flex;align-items:center;justify-content:center;font-family:'Michroma',sans-serif;font-size:16px;color:#eaf6ff;">{{ p.mark }}</div>
-                <span style="color:#6fd8ff;font-size:18px;">&#8599;</span>
+              <div style="position:relative;height:150px;margin:-24px -24px 18px;border-radius:17px 17px 0 0;overflow:hidden;background:{{ p.bg }};">
+                <sc-if value="{{ p.img }}" hint-placeholder-val="{{ true }}">
+                  <img src="{{ p.img }}" alt="{{ p.name }} preview" style="width:100%;height:100%;object-fit:{{ p.fit }};object-position:center;display:block;" />
+                </sc-if>
+                <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Michroma',sans-serif;font-size:42px;letter-spacing:2px;color:#eaf6ff;opacity:.92;">{{ p.mark }}</div>
+                </sc-if>
+                <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,10,20,0) 52%,rgba(5,10,20,.6));pointer-events:none;"></div>
+                <span style="position:absolute;top:12px;right:14px;color:#eaf6ff;font-size:18px;text-shadow:0 1px 8px rgba(0,0,0,.7);">&#8599;</span>
               </div>
               <div style="font-family:'Michroma',sans-serif;font-size:18px;margin-bottom:8px;">{{ p.name }}</div>
               <p style="font-size:14px;line-height:1.55;color:#93a8c4;margin:0 0 18px;flex:1;text-wrap:pretty;">{{ p.desc }}</p>
@@ -213,13 +219,13 @@ class Component extends DCLogic {
   pageRef = React.createRef();
 
   projects = [
-    { name:'DraftVision', mark:'DV', tint:'linear-gradient(135deg,#4a86ff,#7f5bff)', href:'https://draft.jkrek.com',
+    { name:'DraftVision', mark:'DV', img:'img/draftvision.png', fit:'cover', bg:'#0a1020', href:'https://draft.jkrek.com',
       desc:'An NFL draft engine. Scores 9,000+ college & high-school prospects with a calibrated XGBoost/CatBoost ensemble (~73% accuracy), live sports APIs, and Claude Vision mock-draft imports. Live on Docker/Fly.io — go break it.',
       tags:['Python','React','XGBoost','Docker'] },
-    { name:'RL Football Bot', mark:'RL', tint:'linear-gradient(135deg,#6fd8ff,#4aa0ff)', href:'https://github.com/Jkrek/rl-football-play-caller',
+    { name:'RL Football Bot', mark:'RL', img:'img/rlbot.png', fit:'contain', bg:'#0a0f1a', href:'https://github.com/Jkrek/rl-football-play-caller',
       desc:'A Deep Q-Network that learns to call plays from real NFL drive data — trained in a custom Gymnasium environment, with animated drives so you can watch what it actually learned.',
       tags:['PyTorch','Gymnasium','RL'] },
-    { name:'MedicalParse', mark:'MP', tint:'linear-gradient(135deg,#8a6bff,#5bc8ff)', href:'https://github.com/Jkrek/Medical-Parse',
+    { name:'MedicalParse', mark:'MP', noImg:true, fit:'cover', bg:'linear-gradient(135deg,#8a6bff,#5bc8ff)', href:'https://github.com/Jkrek/Medical-Parse',
       desc:'A symptom checker that maps free-text symptoms to the ten most likely conditions, pairing OpenAI reasoning with WHO clinical data.',
       tags:['Python','Flask','LLM'] },
   ];
