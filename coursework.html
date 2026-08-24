@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jared Krekeler — CS5160 Computer Graphics I</title>
+<meta name="description" content="Course portfolio for CS5160 Computer Graphics I — projects, assignments, and documented work by Jared Krekeler.">
+<meta property="og:title" content="Jared Krekeler — CS5160 Computer Graphics I">
+<meta property="og:description" content="Documented coursework, code, and demos from Computer Graphics I.">
+<meta property="og:image" content="https://portfolio.jkrek.com/img/me.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070a14; --panel:rgba(15,19,33,.55); --border:rgba(60,70,110,.45);
+    --ink:#eef1ff; --muted:#9aa3c7; --cyan:#22d3ee; --purple:#8b5cf6; --lime:#a3e635;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--bg);
+    background-image:
+      radial-gradient(1200px 600px at 15% -10%, rgba(139,92,246,.18), transparent 60%),
+      radial-gradient(1000px 700px at 95% 0%, rgba(34,211,238,.12), transparent 55%),
+      radial-gradient(900px 900px at 50% 120%, rgba(163,230,53,.06), transparent 60%);
+    -webkit-font-smoothing:antialiased; line-height:1.6;
+  }
+  .stars{position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.55;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, #fff, transparent),
+      radial-gradient(1px 1px at 70% 20%, #cfe3ff, transparent),
+      radial-gradient(1px 1px at 40% 70%, #fff, transparent),
+      radial-gradient(1px 1px at 85% 60%, #bfe9ff, transparent),
+      radial-gradient(1px 1px at 55% 45%, #fff, transparent),
+      radial-gradient(1px 1px at 10% 80%, #e7d7ff, transparent);
+    background-repeat:repeat; background-size:600px 600px;}
+  .wrap{position:relative; z-index:1; max-width:1040px; margin:0 auto; padding:26px 22px 80px}
+
+  /* top bar */
+  .topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:34px; flex-wrap:wrap; gap:12px}
+  .back{font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); text-decoration:none; transition:color .2s}
+  .back:hover{color:var(--cyan)}
+  .toplinks a{color:var(--muted); text-decoration:none; font-size:14px; margin-left:18px; transition:color .2s}
+  .toplinks a:hover{color:var(--cyan)}
+
+  /* hero */
+  .hero{display:grid; grid-template-columns:1.15fr .85fr; gap:34px; align-items:center}
+  @media(max-width:760px){ .hero{grid-template-columns:1fr} }
+  .eyebrow{font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--cyan); margin:0 0 8px}
+  h1{font-family:'Space Grotesk',sans-serif; font-weight:700; letter-spacing:-.02em; font-size:clamp(32px,5.2vw,50px); margin:0 0 8px; line-height:1.03}
+  .course{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:clamp(18px,2.6vw,24px); margin:0; color:var(--ink)}
+  .course b{color:var(--lime); font-weight:700}
+  .bio{color:var(--muted); margin:18px 0 0; font-size:16px}
+  .btns{margin:24px 0 0; display:flex; gap:12px; flex-wrap:wrap}
+  .btn{padding:11px 20px; border-radius:12px; font-weight:600; font-size:14.5px; text-decoration:none;
+    border:1px solid var(--border); color:var(--ink); background:rgba(11,13,23,.35);
+    display:inline-flex; align-items:center; gap:8px; transition:transform .15s,border-color .2s,color .2s}
+  .btn:hover{border-color:var(--cyan); transform:translateY(-2px)}
+  .btn.primary{background:linear-gradient(135deg, rgba(139,92,246,.9), rgba(34,211,238,.8)); border-color:transparent; color:#0a0d17}
+
+  /* hero photo + wireframe overlay */
+  .portrait{position:relative; border-radius:20px; overflow:hidden; border:1px solid var(--border);
+    box-shadow:0 20px 60px rgba(0,0,0,.5), 0 0 0 1px rgba(34,211,238,.08);
+    background:#0a0d17; aspect-ratio:5/4}
+  .portrait img{width:100%; height:100%; object-fit:cover; display:block}
+  .portrait::after{content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, transparent 55%, rgba(7,10,20,.55)); pointer-events:none}
+  #wire{position:absolute; right:10px; bottom:8px; width:120px; height:120px; z-index:2; pointer-events:none; opacity:.95}
+  .badge{position:absolute; left:12px; top:12px; z-index:2; font-family:'JetBrains Mono',monospace; font-size:11.5px;
+    letter-spacing:.08em; color:var(--cyan); background:rgba(7,10,20,.7); border:1px solid rgba(34,211,238,.35);
+    padding:5px 10px; border-radius:999px; backdrop-filter:blur(4px)}
+
+  hr.sep{border:none; border-top:1px solid var(--border); margin:46px 0 26px}
+  .section-eyebrow{font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--cyan); margin:0 0 6px}
+  .section-title{font-family:'Space Grotesk',sans-serif; font-weight:700; letter-spacing:-.02em; font-size:clamp(24px,3.4vw,32px); margin:0 0 6px}
+  .section-sub{color:var(--muted); font-size:15px; margin:0 0 24px}
+
+  /* entry cards */
+  .entry{position:relative; background:var(--panel); border:1px solid var(--border); border-radius:18px; padding:22px 24px; margin-bottom:20px;
+    backdrop-filter:blur(6px); transition:border-color .2s, transform .2s; overflow:hidden}
+  .entry::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px;
+    background:linear-gradient(180deg,var(--purple),var(--cyan)); opacity:.8}
+  .entry:hover{border-color:rgba(34,211,238,.5); transform:translateY(-2px)}
+  .entry-head{display:flex; justify-content:space-between; align-items:baseline; gap:14px; flex-wrap:wrap}
+  .entry-title{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:20px; margin:0}
+  .entry-date{font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); white-space:nowrap}
+  .tags{margin:12px 0 10px; display:flex; gap:8px; flex-wrap:wrap}
+  .tag{font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--cyan); border:1px solid rgba(34,211,238,.3);
+    padding:3px 9px; border-radius:999px; background:rgba(34,211,238,.06)}
+  .entry p{color:var(--muted); font-size:15px; margin:8px 0 0}
+  .entry-media{margin:16px 0 0; display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px}
+  .entry-media img{width:100%; border-radius:12px; border:1px solid var(--border); display:block}
+  .entry-links{margin:16px 0 0; display:flex; gap:16px; flex-wrap:wrap}
+  .entry-links a{color:var(--ink); text-decoration:none; font-size:14px; font-weight:600; display:inline-flex; align-items:center; gap:6px; transition:color .2s}
+  .entry-links a:hover{color:var(--cyan)}
+
+  footer{margin-top:56px; text-align:center; color:var(--muted); font-size:13px; font-family:'JetBrains Mono',monospace}
+  footer a{color:var(--cyan); text-decoration:none}
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="wrap">
+
+  <!-- ============ TOP BAR ============ -->
+  <div class="topbar">
+    <a class="back" href="/">&larr; back to portfolio.jkrek.com</a>
+    <div class="toplinks">
+      <a href="https://github.com/Jkrek" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/jaredkrekeler/" target="_blank">LinkedIn</a>
+      <a href="Krekeler_Jared_Resume.pdf" target="_blank">Résumé ↗</a>
+    </div>
+  </div>
+
+  <!-- ============ HERO ============ -->
+  <div class="hero">
+    <div>
+      <p class="eyebrow">Course Portfolio</p>
+      <h1>Jared Krekeler</h1>
+      <p class="course"><b>CS5160</b> — Computer Graphics I</p>
+      <p class="bio">I'm a Computer Science senior at the University of Cincinnati (minor in Statistics) and an Applied AI Engineer at GE Aerospace, where I build production machine-learning and LLM systems. This page documents my work in <b style="color:var(--ink)">Computer Graphics I</b> — the math and code behind transformations, rasterization, shading, and real-time rendering — with write-ups, source code, and live demos as the semester goes on.</p>
+      <div class="btns">
+        <a class="btn primary" href="Krekeler_Jared_Resume.pdf" target="_blank">📄 Résumé</a>
+        <a class="btn" href="/">🚀 Main Portfolio</a>
+        <a class="btn" href="https://github.com/Jkrek" target="_blank">GitHub</a>
+      </div>
+    </div>
+    <div class="portrait">
+      <span class="badge">// rendering the future</span>
+      <img src="img/me.png" alt="Jared Krekeler">
+      <canvas id="wire" width="240" height="240"></canvas>
+    </div>
+  </div>
+
+  <hr class="sep">
+
+  <!-- ============ COURSEWORK ============ -->
+  <p class="section-eyebrow">Documented Work</p>
+  <h2 class="section-title">Coursework &amp; Projects</h2>
+  <p class="section-sub">Assignments, labs, and projects from CS5160 — with write-ups, code, and demos.</p>
+
+  <!-- ▼▼▼ COPY ONE OF THESE BLOCKS FOR EACH NEW ASSIGNMENT ▼▼▼ -->
+  <!--
+  <div class="entry">
+    <div class="entry-head">
+      <h3 class="entry-title">Assignment title goes here</h3>
+      <span class="entry-date">Month 2026</span>
+    </div>
+    <div class="tags">
+      <span class="tag">OpenGL</span>
+      <span class="tag">C++</span>
+    </div>
+    <p>One or two sentences on what you built, the approach, and the result.</p>
+    <div class="entry-media">
+      <img src="img/assignment-x.png" alt="">
+    </div>
+    <div class="entry-links">
+      <a href="https://github.com/Jkrek/..." target="_blank">💻 Code</a>
+      <a href="#" target="_blank">🔗 Demo</a>
+      <a href="#" target="_blank">▶ Video</a>
+    </div>
+  </div>
+  -->
+  <!-- ▲▲▲ END COPYABLE BLOCK ▲▲▲ -->
+
+  <div class="entry">
+    <div class="entry-head">
+      <h3 class="entry-title">Assignment 1 — Course Portfolio Page</h3>
+      <span class="entry-date">Aug 2026</span>
+    </div>
+    <div class="tags">
+      <span class="tag">HTML/CSS</span>
+      <span class="tag">JavaScript</span>
+      <span class="tag">Canvas</span>
+    </div>
+    <p>Built this page as a subpage of my personal portfolio (portfolio.jkrek.com) to document my Computer Graphics I coursework. As a nod to the course, the hero includes a hand-written 3D wireframe renderer — a rotating icosahedron projected to 2D and drawn on an HTML canvas with no external libraries.</p>
+    <div class="entry-links">
+      <a href="/" target="_blank">🔗 Main Portfolio</a>
+    </div>
+  </div>
+
+  <div class="entry">
+    <div class="entry-head">
+      <h3 class="entry-title">More coming soon</h3>
+      <span class="entry-date">Fall 2026</span>
+    </div>
+    <p>New assignments and projects will be documented here throughout the semester.</p>
+  </div>
+
+  <footer>
+    Built &amp; maintained by Jared Krekeler · <a href="/">portfolio.jkrek.com</a>
+  </footer>
+
+</div>
+
+<script>
+/* ---- Minimal 3D wireframe renderer (icosahedron) — fitting for Computer Graphics I ---- */
+(function(){
+  var c = document.getElementById('wire'); if(!c) return;
+  var ctx = c.getContext('2d'); var W = c.width, H = c.height;
+  var t = (1+Math.sqrt(5))/2;
+  var V = [[-1,t,0],[1,t,0],[-1,-t,0],[1,-t,0],[0,-1,t],[0,1,t],[0,-1,-t],[0,1,-t],[t,0,-1],[t,0,1],[-t,0,-1],[-t,0,1]];
+  var E = [[0,11],[0,5],[0,1],[0,7],[0,10],[1,5],[5,11],[11,10],[10,7],[7,1],[1,9],[5,4],[11,2],[10,6],[7,8],[3,9],[3,4],[3,2],[3,6],[3,8],[4,9],[2,4],[6,2],[8,6],[9,8]];
+  var a = 0;
+  function draw(){
+    a += 0.008;
+    ctx.clearRect(0,0,W,H);
+    var ca=Math.cos(a), sa=Math.sin(a), cb=Math.cos(a*0.6), sb=Math.sin(a*0.6);
+    var P = V.map(function(p){
+      var x=p[0], y=p[1], z=p[2];
+      var x1=x*ca - z*sa, z1=x*sa + z*ca;          // rotate Y
+      var y1=y*cb - z1*sb, z2=y*sb + z1*cb;         // rotate X
+      var s = 3.2/(4.2 + z2);                        // perspective
+      return [W/2 + x1*38*s, H/2 + y1*38*s, z2];
+    });
+    for(var i=0;i<E.length;i++){
+      var A=P[E[i][0]], B=P[E[i][1]];
+      var depth=(A[2]+B[2])/2;
+      var alpha=0.35 + 0.5*(1-(depth+2)/4);
+      var g=ctx.createLinearGradient(A[0],A[1],B[0],B[1]);
+      g.addColorStop(0,'rgba(139,92,246,'+alpha+')');
+      g.addColorStop(1,'rgba(34,211,238,'+alpha+')');
+      ctx.strokeStyle=g; ctx.lineWidth=1.3;
+      ctx.beginPath(); ctx.moveTo(A[0],A[1]); ctx.lineTo(B[0],B[1]); ctx.stroke();
+    }
+    for(var j=0;j<P.length;j++){
+      ctx.fillStyle='rgba(163,230,53,0.9)';
+      ctx.beginPath(); ctx.arc(P[j][0],P[j][1],1.6,0,7); ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
