@@ -12,8 +12,11 @@
   <meta property="og:url" content="https://portfolio.jkrek.com">
   <meta name="twitter:card" content="summary_large_image">
 <script src="./support.js"></script>
+<script defer src="./nebula.js"></script>
+<script defer src="./ask.js"></script>
 </head>
 <body>
+<canvas id="nebula-bg" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:0;pointer-events:none;display:block"></canvas>
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -256,7 +259,7 @@ body.intro-lock{overflow:hidden}
   </div>
 </sc-if>
 <sc-if value="{{ showReplay }}" hint-placeholder-val="{{ false }}">
-  <button onClick="{{ onReplay }}" style="position:fixed;right:20px;bottom:18px;z-index:60;display:inline-flex;align-items:center;gap:9px;padding:9px 15px;border-radius:999px;border:1px solid rgba(37,44,73,.9);background:rgba(8,12,24,.7);backdrop-filter:blur(8px);color:#9aa3c7;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;cursor:pointer;text-transform:uppercase" style-hover="color:#d7f7ff;border-color:rgba(34,211,238,.6)">&#8635; Replay intro</button>
+  <button onClick="{{ onReplay }}" style="position:fixed;right:20px;bottom:82px;z-index:60;display:inline-flex;align-items:center;gap:9px;padding:9px 15px;border-radius:999px;border:1px solid rgba(37,44,73,.9);background:rgba(8,12,24,.7);backdrop-filter:blur(8px);color:#9aa3c7;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;cursor:pointer;text-transform:uppercase" style-hover="color:#d7f7ff;border-color:rgba(34,211,238,.6)">&#8635; Replay intro</button>
 </sc-if>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{
@@ -406,15 +409,15 @@ class Component extends DCLogic {
       const sy = scrollY;
       const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
       const p = clamp(sy / max, 0, 1);
-      const nebK = this.props.nebulaIntensity ?? 0.85;
+      const nebK = 0; // 2D nebula blobs off — the WebGL shader (#nebula-bg) handles the nebula
       const showRing = this.props.ringVisible ?? true;
 
       // deep space base, warms slightly toward the bottom
       const g = cx.createLinearGradient(0, 0, 0, H);
       g.addColorStop(0, `rgb(${Math.round(lerp(5, 9, p))},${Math.round(lerp(6, 8, p))},${Math.round(lerp(13, 22, p))})`);
       g.addColorStop(1, `rgb(${Math.round(lerp(8, 14, p))},${Math.round(lerp(10, 13, p))},${Math.round(lerp(20, 34, p))})`);
-      cx.fillStyle = g;
-      cx.fillRect(0, 0, W, H);
+      // base gradient cleared so the WebGL nebula (#nebula-bg) shows through
+      cx.clearRect(0, 0, W, H);
 
       // nebula — strongest mid-descent
       const nebOp = nebK * (0.10 + 0.5 * Math.exp(-Math.pow((p - 0.45) / 0.3, 2)));
@@ -848,6 +851,23 @@ class Component extends DCLogic {
     };
   }
 }
+</script>
+
+<!-- ============ ASK-MY-RÉSUMÉ ASSISTANT (client-side, no backend) ============ -->
+<style>#askme-dock.open{display:block !important}</style>
+<button id="askme-fab" aria-label="Ask my résumé" style="position:fixed;right:20px;bottom:20px;z-index:60;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:9px;padding:13px 18px;border-radius:999px;font-weight:600;font-size:14px;color:#05060d;font-family:'Inter',sans-serif;background:linear-gradient(120deg,#8b5cf6,#22d3ee 55%,#a3e635);box-shadow:0 10px 30px -8px rgba(34,211,238,.5)">💬 Ask my résumé</button>
+<div id="askme-dock" style="position:fixed;right:20px;bottom:78px;z-index:60;width:min(400px,calc(100vw - 40px));height:min(560px,72vh);display:none"><div id="askme-mount" style="height:100%"></div></div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (window.initNebula) initNebula(document.getElementById('nebula-bg'), { maxDPR: 1.5 });
+  var fab = document.getElementById('askme-fab'),
+      dock = document.getElementById('askme-dock'), mounted = false;
+  if (fab) fab.addEventListener('click', function () {
+    if (!mounted && window.initAskMe) { initAskMe(document.getElementById('askme-mount')); mounted = true; }
+    dock.classList.toggle('open');
+    fab.textContent = dock.classList.contains('open') ? '✕ Close' : '💬 Ask my résumé';
+  });
+});
 </script>
 </body>
 </html>
