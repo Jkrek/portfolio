@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jared Krekeler — CS5160 Project 1: Friday Night Pixels</title>
+<title>Jared Krekeler | CS5160 Project 1: Friday Night Pixels</title>
 <meta name="description" content="Computer Graphics I Project 1: a field goal game rendered with a pinhole camera on a mock 320x200 raster display, built with plain JavaScript and canvas.">
 <link rel="icon" href="/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -117,12 +117,13 @@
   <!-- ============ HERO ============ -->
   <p class="eyebrow">CS5160 · Project 1 · Sept 2026</p>
   <h1>Friday Night Pixels</h1>
-  <p class="course"><b>Pinhole camera, rasterized display</b> — a field goal game on a mock 320×200 screen</p>
+  <p class="course"><b>Pinhole camera, rasterized display</b>, aka a field goal game on a fake 320×200 screen</p>
   <p class="lead">
-    You're the kicker. Line up the kick, read the wind, time the power meter, and try to split the uprights under the
-    stadium lights. The whole thing is built with <strong>plain JavaScript and the HTML canvas</strong>, with no WebGL and no libraries.
-    It has three renderers you can switch between with one key: a high-res wireframe, a 320×200 raster display with my own
-    line-drawing routine, and a filled-triangle renderer with a depth buffer.
+    For Project 1 I made a field goal game. You're the kicker, so you line it up, check the wind, time the power meter,
+    and try not to shank it in front of the whole stadium. It's all <strong>plain JavaScript on an HTML canvas</strong>, no WebGL
+    and no libraries, so everything on screen is something my code had to figure out how to draw. There are three renderers and you
+    can flip between them with the 1, 2 and 3 keys: a high-res wireframe, a 320×200 "old computer" display with my own line drawing,
+    and a filled-triangle version with a depth buffer.
   </p>
   <div class="btns">
     <a class="btn primary" href="https://jkrek.github.io/cg-project1/" target="_blank">▶ Play it live</a>
@@ -135,7 +136,7 @@
   <hr class="sep">
   <p class="section-eyebrow">01 · Design</p>
   <h2 class="section-title">The plan</h2>
-  <p class="section-sub">What I wanted the game to look like and how I wanted it to behave, before writing code.</p>
+  <p class="section-sub">What I wanted it to look like and how it should play, before I wrote any code.</p>
 
   <div class="panel">
     <svg class="sketch" viewBox="0 0 960 430" role="img" aria-label="Design sketch: top-down view of the field and a side view of the kick">
@@ -191,26 +192,25 @@
   <div class="grid2">
     <div class="panel">
       <h3 style="margin-top:0">How it should look</h3>
-      <p>A Friday-night football stadium: a dark sky with stars, a striped green field with white yard lines and colored end
-        zones, yellow goal posts, bleachers full of fans on both sidelines, light towers in the corners, and two teams lined up for a
-        field goal. It should read clearly as wireframe lines at 1600×1000 and still look good as chunky 5×5 pixels at
-        320×200.</p>
+      <p>Friday night lights. Dark sky with stars, a striped field with yard lines and end zones, yellow goal posts, bleachers
+        packed on both sides, light towers in the corners, and both teams lined up for the kick. It had to look decent as thin lines
+        at 1600×1000 and still obviously be a football field once it's chunky 5×5 pixels at 320×200.</p>
     </div>
     <div class="panel">
       <h3 style="margin-top:0">How it should behave</h3>
-      <p>The camera is the kicker. It only translates, with no rotation, so you aim by stepping left or right and choose the
-        distance by moving up and back. <kbd>Space</kbd> kicks. The ball follows a real projectile arc, wind pushes it
-        sideways, and the game calls the result: <em>good</em>, <em>wide left/right</em>, <em>under the crossbar</em> or <em>short</em>.
-        A made kick makes the team jump and the crowd flash. <kbd>R</kbd> resets everything.</p>
+      <p>You're the kicker and also the camera. The camera can't rotate (that's a project rule), so you aim by sliding left or
+        right and pick your distance by moving up or back. <kbd>Space</kbd> kicks. The ball flies on an actual projectile arc, wind
+        pushes it sideways, and the game tells you how it went: <em>good</em>, <em>wide left</em>, <em>wide right</em>, <em>under the
+        crossbar</em> or <em>short</em>. Make it and your team starts jumping and the crowd goes nuts. <kbd>R</kbd> resets everything.</p>
     </div>
   </div>
 
   <div class="panel">
-    <h3 style="margin-top:0">Design decisions</h3>
+    <h3 style="margin-top:0">A few decisions I made early</h3>
     <ul>
-      <li><strong>Units are yards.</strong> Everything uses real football dimensions: a 53.3-yard-wide field, a 3.33-yard crossbar and uprights 6.17 yards apart. That makes the physics and scoring honest.</li>
-      <li><strong>One scene, three renderers.</strong> All three levels draw the same models and camera, so switching modes shows exactly what each rendering technique changes.</li>
-      <li><strong>Few shapes, many instances.</strong> Players, goal posts, stands and coolers are each defined once around the origin and placed many times with a position vector and a scale factor. For example, linemen are 1.1–1.2× and skill players about 0.95×.</li>
+      <li><strong>Everything is in yards.</strong> The field is 53.3 yards wide, the crossbar is 3.33 yards up and the uprights are 6.17 yards apart, same as a real field. So if a kick is good in the game, it would've been good in real life (minus spin and all that).</li>
+      <li><strong>One scene, three renderers.</strong> All three modes use the same models and the same camera. When you switch, the only thing that changes is how it gets drawn, which makes it easy to see what each technique actually does.</li>
+      <li><strong>Build it once, reuse it a lot.</strong> Players, goal posts, stands and coolers are each built one time around the origin, then placed around the field with a position and a scale. Linemen are scaled up to about 1.1 to 1.2 and skill guys are around 0.95, because linemen are huge.</li>
     </ul>
   </div>
 
@@ -218,7 +218,7 @@
   <hr class="sep">
   <p class="section-eyebrow">02 · Features &amp; Controls</p>
   <h2 class="section-title">Playing the game</h2>
-  <p class="section-sub">Open the <a class="inline" href="https://jkrek.github.io/cg-project1/" target="_blank">live app</a>, click the canvas, and use the keyboard.</p>
+  <p class="section-sub">Open the <a class="inline" href="https://jkrek.github.io/cg-project1/" target="_blank">live app</a>, click on the canvas so it picks up your keys, and go.</p>
 
   <div class="panel">
     <table>
@@ -237,31 +237,31 @@
     </table>
   </div>
 
-  <p><strong>Scoring.</strong> Made kicks are worth 3 points, or 5 from 50+ yards. The HUD tracks score, makes/attempts, streak,
-    best streak, longest make, wind and kick distance. Kicks that clip an upright get a <em>DOINK!</em>.</p>
+  <p><strong>Scoring.</strong> A make is 3 points, or 5 if it's from 50+. The HUD keeps your score, makes/attempts, streak, best
+    streak, longest make, wind and distance. Clip the upright and you get a <em>DOINK!</em></p>
 
   <div class="gallery" style="margin-top:22px">
-    <figure><img src="img/cgp1-wireframe.jpg" alt="Level 1 wireframe" loading="lazy"><figcaption><b>Level 1: wireframe.</b> Every edge is projected with the pinhole camera and drawn with the canvas <code>lineTo</code> at 1600×1000.</figcaption></figure>
-    <figure><img src="img/cgp1-raster-lines.jpg" alt="Level 2 raster lines" loading="lazy"><figcaption><b>Level 2: raster lines.</b> The same edges, drawn by my own line algorithm into a 320×200 pixel array and shown as 5×5 squares.</figcaption></figure>
-    <figure><img src="img/cgp1-triangles.jpg" alt="Level 3 filled triangles" loading="lazy"><figcaption><b>Level 3: filled triangles.</b> Surfaces are made of triangles, filled pixel by pixel with a barycentric coverage test, with occlusion from a depth buffer.</figcaption></figure>
-    <figure><img src="img/cgp1-depth.jpg" alt="Depth buffer view" loading="lazy"><figcaption><b>Depth buffer (Z key).</b> The stored depth for each pixel. Brighter is closer. This is what decides which triangle wins each pixel.</figcaption></figure>
-    <figure><img src="img/cgp1-kick.jpg" alt="Kick in flight" loading="lazy"><figcaption><b>Kick in flight.</b> The ball follows a projectile arc. Its shadow on the grass helps you judge height and distance at low resolution.</figcaption></figure>
-    <figure><img src="img/cgp1-ballcam.jpg" alt="Ball-cam" loading="lazy"><figcaption><b>Ball-cam (F key).</b> The camera translates along with the ball, still without rotating, so you ride the kick through the uprights.</figcaption></figure>
-    <figure><img src="img/cgp1-good.jpg" alt="Made field goal celebration" loading="lazy"><figcaption><b>It's good!</b> The field-goal unit jumps and the crowd rows flash team colors.</figcaption></figure>
-    <figure><img src="img/cgp1-high.jpg" alt="High camera view" loading="lazy"><figcaption><b>Raised camera (W key).</b> A higher view of the whole scene: stands, light towers, players, pylons and the sideline coolers.</figcaption></figure>
+    <figure><img src="img/cgp1-wireframe.jpg" alt="Level 1 wireframe" loading="lazy"><figcaption><b>Level 1, wireframe.</b> Every edge goes through the pinhole camera and gets drawn with the built-in canvas <code>lineTo</code> at 1600×1000.</figcaption></figure>
+    <figure><img src="img/cgp1-raster-lines.jpg" alt="Level 2 raster lines" loading="lazy"><figcaption><b>Level 2, raster lines.</b> Same edges, but now my own line function decides which of the 320×200 pixels light up. Each pixel is a 5×5 square.</figcaption></figure>
+    <figure><img src="img/cgp1-triangles.jpg" alt="Level 3 filled triangles" loading="lazy"><figcaption><b>Level 3, filled triangles.</b> Everything's made of triangles now, filled in pixel by pixel with a barycentric test, and a depth buffer figures out what's in front.</figcaption></figure>
+    <figure><img src="img/cgp1-depth.jpg" alt="Depth buffer view" loading="lazy"><figcaption><b>Depth buffer (Z key).</b> This is what the renderer "sees" for depth. Brighter means closer. It's how it decides which triangle wins each pixel.</figcaption></figure>
+    <figure><img src="img/cgp1-kick.jpg" alt="Kick in flight" loading="lazy"><figcaption><b>Kick's up.</b> The ball follows a projectile arc. There's a shadow under it because at 320×200 it's really hard to tell how high the ball is without one.</figcaption></figure>
+    <figure><img src="img/cgp1-ballcam.jpg" alt="Ball-cam" loading="lazy"><figcaption><b>Ball-cam (F key).</b> The camera rides along behind the ball (still no rotating) so you can watch it go through.</figcaption></figure>
+    <figure><img src="img/cgp1-good.jpg" alt="Made field goal celebration" loading="lazy"><figcaption><b>It's good!</b> Your guys start jumping and the crowd flashes team colors.</figcaption></figure>
+    <figure><img src="img/cgp1-high.jpg" alt="High camera view" loading="lazy"><figcaption><b>Camera up (W key).</b> A higher look at the whole stadium: stands, light towers, players, pylons and the coolers on the sideline.</figcaption></figure>
   </div>
 
   <!-- ============ HOW IT WORKS ============ -->
   <hr class="sep">
   <p class="section-eyebrow">03 · Implementation</p>
-  <h2 class="section-title">The graphics behind it</h2>
-  <p class="section-sub">How each course concept shows up in the code, in the order the pipeline runs.</p>
+  <h2 class="section-title">How it actually works</h2>
+  <p class="section-sub">Here's where the stuff from class shows up in the code, roughly in the order it runs every frame.</p>
 
-  <h3>1 · 3D objects as vertices, edges and triangles</h3>
-  <p>Each object type is a <strong>model</strong>: a list of vertex coordinates centered at the origin, a list of edges (index pairs) for
-    wireframe, and a list of triangles (index triples) for filled rendering. Each edge or triangle also carries a color key such as
-    <code>"jersey"</code> or <code>"helmet"</code>. Most models are built from a helper that adds an axis-aligned box: 8 vertices,
-    12 edges and 12 triangles (two per face).</p>
+  <h3>Objects are just vertices, edges and triangles</h3>
+  <p>Every object type is a <strong>model</strong>. It's a list of points centered at the origin, a list of edges (pairs of points) for
+    the wireframe modes, and a list of triangles (three points each) for the filled mode. Each edge and triangle also has a color tag like
+    <code>"jersey"</code> or <code>"helmet"</code>. Most of the models are stacks of boxes from one helper function, and each box is
+    8 vertices, 12 edges and 12 triangles (2 per face).</p>
 <pre><span class="c">// Object types: field segment, yard line, goal post, player, football,
 // cube (the Level 0 cube, used as sideline coolers), pylon, bleachers, light tower, ball shadow</span>
 const PLAYER = newModel("player");
@@ -269,10 +269,10 @@ addBox(PLAYER, 0, 0.45 - PL_CY, 0, 0.5, 0.9, 0.3, "pants");     <span class="c">
 addBox(PLAYER, 0, 1.3  - PL_CY, 0, 0.8, 0.8, 0.4, "jersey");    <span class="c">// torso + shoulder pads</span>
 addBox(PLAYER, 0, 1.87 - PL_CY, 0, 0.35, 0.35, 0.35, "helmet"); <span class="c">// helmet</span></pre>
 
-  <h3>2 · Instances: translate and scale, no rotation</h3>
-  <p>An <strong>instance</strong> is a model plus a position vector, a scale factor and a color map. To place a vertex in the world,
-    the code scales it and then translates it. To move into camera space, it subtracts the camera position. The camera never rotates,
-    so this subtraction is the whole view transform.</p>
+  <h3>Instances: move it and scale it, no rotation</h3>
+  <p>An <strong>instance</strong> is a model plus a position, a scale and its colors. To put a vertex in the world you scale it and then
+    move it. Then to get it relative to the camera you just subtract the camera's position. Since the camera never rotates, that
+    subtraction is literally the whole view transform.</p>
   <div class="formula">world = s · v + p &nbsp;&nbsp;→&nbsp;&nbsp; camera = world − c</div>
 <pre>function toCamera(v, inst) {
   return {
@@ -282,28 +282,28 @@ addBox(PLAYER, 0, 1.87 - PL_CY, 0, 0.35, 0.35, 0.35, "helmet"); <span class="c">
   };
 }</pre>
 
-  <h3>3 · Pinhole camera projection</h3>
-  <p>The camera looks down +z. By similar triangles, a point at camera-space (x, y, z) lands on the image plane at x/z and y/z.
-    Multiplying by a focal length <code>F</code>, taken from a 70° horizontal field of view, turns that into pixels. Shifting by half
-    the screen puts (0,0) in the center, and y is flipped because screen rows grow downward. The same function drives both displays;
-    only <code>F</code> and the screen size change (1600×1000 vs 320×200).</p>
+  <h3>The pinhole camera</h3>
+  <p>The camera looks down +z. Using similar triangles, a point at (x, y, z) in front of the camera lands on the image at x/z and y/z.
+    Multiply by a focal length <code>F</code> (I get it from a 70° field of view) and that's in pixels. Then shift by half the screen
+    so (0,0) is the middle, and flip y because screen rows count downward. The exact same function works for both screens; only
+    <code>F</code> and the size change (1600×1000 vs 320×200).</p>
   <div class="formula">F = (W / 2) / tan(fov / 2) &nbsp;&nbsp; u = W/2 + F·x/z &nbsp;&nbsp; v = H/2 − F·y/z</div>
-  <p>Far objects shrink because z is larger, which is perspective. It's why the far goal posts look small and the field lines converge
-    toward the horizon.</p>
+  <p>Stuff farther away has a bigger z, so it gets divided down and looks smaller. That's the whole reason perspective works, and it's
+    why the goal posts look tiny from 50 yards and the field lines squeeze together toward the horizon.</p>
 
-  <h3>4 · Objects behind the camera</h3>
-  <p>Dividing by z breaks down when z ≤ 0: points behind the pinhole flip upside down and blow up. So before projecting, every edge is
-    <strong>clipped against a near plane</strong> at z = 0.3. If both ends are behind it, the edge is skipped. If one end is, that end
-    is moved to where the edge crosses the plane. Triangles use the same idea (Sutherland–Hodgman), which can turn a triangle into a
-    four-sided polygon that is re-split into two triangles. The camera also has simple collision checks, so it can't walk inside a
-    player or a goal post.</p>
+  <h3>Stuff behind the camera</h3>
+  <p>Dividing by z falls apart once z hits 0 or goes negative. Anything behind the camera flips upside down and shoots off the screen.
+    So before projecting, every edge gets <strong>clipped against a near plane</strong> at z = 0.3. If both ends are behind it, the edge
+    is skipped. If only one end is, that end gets moved up to where the edge crosses the plane. Triangles do the same thing
+    (Sutherland-Hodgman clipping), which can turn a triangle into a 4-sided shape that gets split back into 2 triangles. I also added
+    basic collision so you can't walk the camera into a player or a goal post.</p>
 
-  <h3>5 · Level 2: drawing my own lines</h3>
-  <p>The raster display is a <code>320 × 200</code> 2D array of colors that starts filled with the background color. Instead of
-    <code>ctx.lineTo</code>, each projected edge is drawn with the <strong>incremental line algorithm</strong> from class. For slopes
-    between −1 and 1, it steps one pixel at a time in u and adds the slope m to v each step. For steeper lines it swaps roles, stepping
-    in v and adding 1/m to u, so steep lines don't come out as gaps. It samples at pixel centers. Lines are first clipped to the screen
-    rectangle (Liang–Barsky) so the loop never walks thousands of off-screen pixels.</p>
+  <h3>Level 2: drawing my own lines</h3>
+  <p>The fake screen is a <code>320 × 200</code> 2D array of colors that starts out filled with the background color. Instead of
+    <code>ctx.lineTo</code>, each edge gets drawn with the <strong>incremental line algorithm</strong> from class. If the slope is
+    between -1 and 1, it steps one pixel at a time across and adds the slope m to the height each step. If the line is steeper, it flips
+    that around and steps down instead, adding 1/m, otherwise steep lines come out as dotted gaps. It samples at the center of each
+    pixel. Lines also get clipped to the screen first (Liang-Barsky) so it doesn't loop over thousands of pixels that are off screen.</p>
 <pre>if (Math.abs(dx) >= Math.abs(dy)) {            <span class="c">// shallow: step in u</span>
   const m = dy / dx;
   let v = y0 + m * (uStart + 0.5 - x0);
@@ -312,40 +312,42 @@ addBox(PLAYER, 0, 1.87 - PL_CY, 0, 0.35, 0.35, 0.35, "helmet"); <span class="c">
     v += m;                                      <span class="c">// incremental step</span>
   }
 } else { <span class="c">/* steep: same idea, step in v and add 1/m to u */</span> }</pre>
-  <p>After every edge is written into the array, the draw pass paints each stored pixel as a 5×5 rectangle on the 1600×1000 canvas.
-    The <kbd>G</kbd> key overlays the pixel grid so the individual pixels are visible.</p>
+  <p>Once all the edges are in the array, the draw step paints every pixel as a 5×5 rectangle on the real 1600×1000 canvas.
+    Press <kbd>G</kbd> to turn on the grid so you can see each pixel.</p>
 
-  <h3>6 · Level 3: which pixels does a triangle cover?</h3>
-  <p>For each triangle, the renderer projects its three vertices, takes their <strong>bounding box</strong> (min/max u and v, clamped to
-    the screen), and tests every pixel center inside it. The test uses <strong>barycentric coordinates</strong> computed from areas:
-    each weight is the area of the sub-triangle opposite a vertex divided by the whole triangle's area. The pixel is inside only if
-    all three weights are ≥ 0. The same signed-area expression is the "half-plane" edge test, and dividing by the signed total area
-    makes it work no matter which way the triangle winds.</p>
+  <h3>Level 3: which pixels does a triangle cover?</h3>
+  <p>For each triangle, it projects the 3 corners, grabs their <strong>bounding box</strong> (min and max u and v, kept on screen), and
+    checks the center of every pixel in that box. The check uses <strong>barycentric coordinates</strong> from areas. Each weight is
+    the area of the little triangle opposite a corner divided by the area of the whole triangle. If all 3 weights are 0 or more, the
+    pixel is inside. That same signed-area formula is also the "half-plane" test from class, and dividing by the signed area means it
+    works no matter which way the triangle's points go around.</p>
 <pre>const area = edgeFn(p0, p1, p2);
 const w0 = edgeFn(p1, p2, P) / area;             <span class="c">// weight of p0</span>
 const w1 = edgeFn(p2, p0, P) / area;             <span class="c">// weight of p1</span>
 const w2 = 1 - w0 - w1;                          <span class="c">// weights sum to 1</span>
 if (w0 < 0 || w1 < 0 || w2 < 0) continue;        <span class="c">// outside the triangle</span></pre>
 
-  <h3>7 · Occlusion with a depth buffer</h3>
-  <p>With hundreds of overlapping triangles, the painter's algorithm would need sorting and still fails when triangles overlap in depth.
-    Instead there is a <strong>z-buffer</strong>: one depth value per pixel, reset every frame. The barycentric weights that decided
-    coverage also interpolate depth across the triangle. I interpolate <strong>1/z</strong> rather than z, because after perspective
-    division 1/z varies linearly across the screen, so the result is correct. A pixel is written only if its 1/z is larger (closer)
-    than what's stored, so triangles can be drawn in any order. The <kbd>Z</kbd> key shows this buffer directly.</p>
+  <h3>What's in front? The depth buffer</h3>
+  <p>There are hundreds of triangles overlapping, so the painter's algorithm would mean sorting all of them, and it still breaks when
+    triangles overlap weird. So I used a <strong>z-buffer</strong> instead, which is one depth value per pixel that resets every frame.
+    The same barycentric weights from the coverage test also blend the depth across the triangle. It blends <strong>1/z</strong>
+    instead of z, because after the perspective divide 1/z is what changes evenly across the screen, so the depths come out right.
+    A pixel only gets drawn if it's closer than what's already stored, which means the triangles can be drawn in any order. Press
+    <kbd>Z</kbd> to see the buffer.</p>
 
-  <h3>8 · Color and shading</h3>
-  <p>Every surface has a base color from its instance, such as team jerseys, turf stripes or yellow posts. To keep boxes from looking
-    flat, each triangle gets a normal from the <strong>cross product</strong> of two of its edges. Its brightness is scaled by the dot
-    product between that normal and a fixed light direction. This is flat (per-triangle) Lambert shading.</p>
+  <h3>Colors and shading</h3>
+  <p>Every surface gets its color from its instance, like team jerseys, the turf stripes or the yellow posts. Without shading every box
+    would look like a flat sticker, so each triangle gets a normal from the <strong>cross product</strong> of two of its edges, and its
+    brightness depends on the dot product of that normal with a fixed light direction. That's basic flat (per-triangle) Lambert shading.</p>
 
-  <h3>9 · Small touches that are still graphics</h3>
+  <h3>Other stuff I added</h3>
   <ul>
-    <li><strong>Stars at infinity.</strong> Stars are stored as directions, not points, so moving the camera never shifts them. That's
-      the same zero-parallax behavior real stars have. In the raster modes they sit at depth 0, so any geometry covers them.</li>
-    <li><strong>Ball shadow.</strong> A flat quad on the grass directly under the ball. At 320×200 it's the easiest way to read the ball's height.</li>
-    <li><strong>Faster pixel drawing.</strong> Neighboring pixels in a row that share a color are painted with one wider rectangle. The
-      result looks identical but uses about 10× fewer canvas calls, which took Level 3 from about 18 ms to about 5 ms per frame.</li>
+    <li><strong>Stars that never move.</strong> The stars are stored as directions instead of points, so walking around doesn't shift
+      them at all, which is how real stars work since they're basically infinitely far away. In the pixel modes they sit at depth 0,
+      so anything drawn covers them.</li>
+    <li><strong>Ball shadow.</strong> Just a flat square on the grass right under the ball. At 320×200 it's the easiest way to tell how high the ball is.</li>
+    <li><strong>Faster pixel drawing.</strong> Pixels next to each other in a row that are the same color get painted as one wider
+      rectangle. It looks exactly the same but it's about 10x fewer canvas calls, and it took Level 3 from about 18 ms to about 5 ms a frame.</li>
   </ul>
 
   <!-- ============ FUTURE WORK ============ -->
@@ -354,11 +356,11 @@ if (w0 < 0 || w1 < 0 || w2 < 0) continue;        <span class="c">// outside the 
   <h2 class="section-title">What I'd do next</h2>
   <div class="panel">
     <ul style="margin:0">
-      <li><strong>Camera rotation.</strong> Add yaw so you can aim by turning instead of stepping sideways, with a proper view matrix.</li>
-      <li><strong>Back-face culling.</strong> Give every model a consistent winding order and skip triangles facing away, which would roughly halve the triangle work.</li>
-      <li><strong>Anti-aliasing.</strong> Try the coverage and diamond-rule line methods from class, and a top-left fill rule so neighboring triangles never double-cover shared edges.</li>
-      <li><strong>Smooth shading and textures.</strong> Interpolate per-vertex colors (perspective-correct) and add yard numbers and end-zone text as textures.</li>
-      <li><strong>Game feel.</strong> A spinning ball, crowd noise, a blocked-kick chance from the rush, and touch controls for phones.</li>
+      <li><strong>Let the camera turn.</strong> Add rotation so you can aim by turning your head instead of sliding sideways. That needs a real view matrix.</li>
+      <li><strong>Back-face culling.</strong> Make every model wind its triangles the same way and skip the ones facing away. That's about half the triangle work gone.</li>
+      <li><strong>Smoother edges.</strong> Try the coverage and diamond-rule line methods from class, and a top-left fill rule so triangles that share an edge don't both draw it.</li>
+      <li><strong>Better shading and textures.</strong> Blend colors across each triangle instead of one flat color, and put yard numbers and end zone text on the field.</li>
+      <li><strong>Make it more of a game.</strong> A spinning ball, crowd noise, a chance of getting the kick blocked, and touch controls so it works on a phone.</li>
     </ul>
   </div>
 
@@ -366,7 +368,7 @@ if (w0 < 0 || w1 < 0 || w2 < 0) continue;        <span class="c">// outside the 
   <hr class="sep" id="video">
   <p class="section-eyebrow">05 · Demo</p>
   <h2 class="section-title">Video walkthrough</h2>
-  <p class="section-sub">A narrated tour of the three renderers, the controls, and the graphics concepts.</p>
+  <p class="section-sub">Me walking through the three renderers, the controls, and the graphics concepts.</p>
   <!-- TODO(Jared): replace this block with your YouTube embed, e.g.
        <div class="video"><iframe src="https://www.youtube.com/embed/VIDEO_ID" title="Project 1 demo" allowfullscreen></iframe></div>
        and add a plain link under it. -->
@@ -386,7 +388,7 @@ if (w0 < 0 || w1 < 0 || w2 < 0) continue;        <span class="c">// outside the 
   <!-- ============ LINKS ============ -->
   <hr class="sep">
   <p class="section-eyebrow">07 · Links</p>
-  <h2 class="section-title">Try it &amp; read the code</h2>
+  <h2 class="section-title">Play it and check out the code</h2>
   <div class="btns">
     <a class="btn primary" href="https://jkrek.github.io/cg-project1/" target="_blank">▶ Hosted app: jkrek.github.io/cg-project1</a>
     <a class="btn" href="https://github.com/Jkrek/cg-project1" target="_blank">GitHub: Jkrek/cg-project1</a>
