@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jared Krekeler — CS5160 Project 1: Friday Night Pixels</title>
+<meta name="description" content="Computer Graphics I Project 1: a field goal game rendered with a pinhole camera on a mock 320x200 raster display, built with plain JavaScript and canvas.">
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070a14; --panel:rgba(15,19,33,.55); --border:rgba(60,70,110,.45);
+    --ink:#eef1ff; --muted:#9aa3c7; --cyan:#22d3ee; --purple:#8b5cf6; --lime:#a3e635; --gold:#ffd23f;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--bg);
+    background-image:
+      radial-gradient(1200px 600px at 15% -10%, rgba(139,92,246,.18), transparent 60%),
+      radial-gradient(1000px 700px at 95% 0%, rgba(34,211,238,.12), transparent 55%),
+      radial-gradient(900px 900px at 50% 120%, rgba(163,230,53,.06), transparent 60%);
+    -webkit-font-smoothing:antialiased; line-height:1.65;
+  }
+  .stars{position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.55;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, #fff, transparent),
+      radial-gradient(1px 1px at 70% 20%, #cfe3ff, transparent),
+      radial-gradient(1px 1px at 40% 70%, #fff, transparent),
+      radial-gradient(1px 1px at 85% 60%, #bfe9ff, transparent),
+      radial-gradient(1px 1px at 55% 45%, #fff, transparent),
+      radial-gradient(1px 1px at 10% 80%, #e7d7ff, transparent);
+    background-repeat:repeat; background-size:600px 600px;}
+  .wrap{position:relative; z-index:1; max-width:1040px; margin:0 auto; padding:26px 22px 80px}
+
+  .topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:34px; flex-wrap:wrap; gap:12px}
+  .back{font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); text-decoration:none; transition:color .2s}
+  .back:hover{color:var(--cyan)}
+  .toplinks a{color:var(--muted); text-decoration:none; font-size:14px; margin-left:18px; transition:color .2s}
+  .toplinks a:hover{color:var(--cyan)}
+
+  .eyebrow{font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--cyan); margin:0 0 8px}
+  h1{font-family:'Space Grotesk',sans-serif; font-weight:700; letter-spacing:-.02em; font-size:clamp(32px,5.2vw,50px); margin:0 0 8px; line-height:1.03}
+  .course{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:clamp(18px,2.6vw,22px); margin:0 0 14px}
+  .course b{color:var(--lime); font-weight:600}
+  .lead{color:var(--muted); font-size:16px; max-width:720px; margin:0 0 20px}
+  .lead strong{color:var(--ink)}
+
+  .btns{display:flex; gap:10px; flex-wrap:wrap; margin:0 0 28px}
+  .btn{display:inline-flex; align-items:center; gap:7px; padding:10px 16px; border-radius:12px; font-size:14px; font-weight:600;
+    text-decoration:none; color:var(--ink); border:1px solid var(--border); background:rgba(15,19,33,.7); transition:border-color .2s, transform .2s}
+  .btn:hover{border-color:rgba(34,211,238,.6); transform:translateY(-1px)}
+  .btn.primary{background:linear-gradient(135deg,var(--purple),var(--cyan)); border-color:transparent; color:#fff}
+
+  .hero-shot{border-radius:18px; overflow:hidden; border:1px solid var(--border); background:#050510}
+  .hero-shot img{display:block; width:100%; height:auto}
+
+  hr.sep{border:none; border-top:1px solid var(--border); margin:50px 0 26px}
+  .section-eyebrow{font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--cyan); margin:0 0 6px}
+  .section-title{font-family:'Space Grotesk',sans-serif; font-weight:700; letter-spacing:-.02em; font-size:clamp(24px,3.4vw,32px); margin:0 0 6px}
+  .section-sub{color:var(--muted); font-size:15px; margin:0 0 24px}
+  h3{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:20px; margin:28px 0 8px}
+  p, li{color:var(--muted); font-size:15.5px}
+  p strong, li strong{color:var(--ink); font-weight:600}
+  a.inline{color:var(--cyan)}
+  code{font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--lime); background:rgba(163,230,53,.07); padding:1px 5px; border-radius:5px}
+
+  .panel{background:var(--panel); border:1px solid var(--border); border-radius:18px; padding:22px 24px; margin:0 0 20px; backdrop-filter:blur(6px)}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:20px}
+  @media(max-width:760px){ .grid2{grid-template-columns:1fr} }
+
+  .sketch{width:100%; height:auto; display:block}
+  .sketch text{font-family:'JetBrains Mono',monospace}
+
+  table{width:100%; border-collapse:collapse; font-size:14.5px}
+  th, td{text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); vertical-align:top}
+  th{font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--cyan); font-weight:500}
+  td{color:var(--muted)}
+  td:first-child{color:var(--ink); white-space:nowrap}
+  kbd{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink); background:rgba(255,255,255,.06); border:1px solid var(--border);
+    border-bottom-width:2px; border-radius:6px; padding:1px 7px}
+
+  .gallery{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:18px}
+  figure{margin:0; background:var(--panel); border:1px solid var(--border); border-radius:14px; overflow:hidden}
+  figure img{display:block; width:100%; height:auto; background:#050510}
+  figcaption{padding:10px 14px 12px; font-size:13.5px; color:var(--muted)}
+  figcaption b{color:var(--ink); font-weight:600}
+
+  pre{font-family:'JetBrains Mono',monospace; font-size:12.5px; line-height:1.55; color:#d6dcff; background:rgba(5,6,13,.85);
+    border:1px solid var(--border); border-radius:12px; padding:14px 16px; overflow-x:auto; margin:12px 0 16px}
+  pre .c{color:#6f7aa6}
+  .formula{font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--ink); background:rgba(139,92,246,.08);
+    border:1px solid rgba(139,92,246,.35); border-radius:10px; padding:10px 14px; margin:10px 0 14px; overflow-x:auto}
+
+  .todo{border:1px dashed rgba(255,210,63,.7); background:rgba(255,210,63,.06); border-radius:14px; padding:16px 18px; color:var(--gold); font-size:14.5px}
+  .video{position:relative; aspect-ratio:16/9; border-radius:14px; overflow:hidden; border:1px solid var(--border); background:#050510}
+  .video iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
+
+  footer{margin-top:60px; color:var(--muted); font-size:13px; font-family:'JetBrains Mono',monospace; text-align:center}
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="wrap">
+
+  <div class="topbar">
+    <a class="back" href="/coursework.html">← back to CS5160 coursework</a>
+    <div class="toplinks">
+      <a href="https://jkrek.github.io/cg-project1/" target="_blank">Play</a>
+      <a href="https://github.com/Jkrek/cg-project1" target="_blank">Code</a>
+      <a href="#video">Video</a>
+    </div>
+  </div>
+
+  <!-- ============ HERO ============ -->
+  <p class="eyebrow">CS5160 · Project 1 · Sept 2026</p>
+  <h1>Friday Night Pixels</h1>
+  <p class="course"><b>Pinhole camera, rasterized display</b> — a field goal game on a mock 320×200 screen</p>
+  <p class="lead">
+    You're the kicker. Line up the kick, read the wind, time the power meter, and try to split the uprights under the
+    stadium lights. The whole thing is built with <strong>plain JavaScript and the HTML canvas</strong>, with no WebGL and no libraries.
+    It has three renderers you can switch between with one key: a high-res wireframe, a 320×200 raster display with my own
+    line-drawing routine, and a filled-triangle renderer with a depth buffer.
+  </p>
+  <div class="btns">
+    <a class="btn primary" href="https://jkrek.github.io/cg-project1/" target="_blank">▶ Play it live</a>
+    <a class="btn" href="https://github.com/Jkrek/cg-project1" target="_blank">Source on GitHub</a>
+    <a class="btn" href="#video">Demo video</a>
+  </div>
+  <div class="hero-shot"><img src="img/cgp1-triangles.jpg" alt="Level 3 filled triangle renderer: field goal unit, stands and goal posts at night on a 320x200 pixel grid"></div>
+
+  <!-- ============ DESIGN ============ -->
+  <hr class="sep">
+  <p class="section-eyebrow">01 · Design</p>
+  <h2 class="section-title">The plan</h2>
+  <p class="section-sub">What I wanted the game to look like and how I wanted it to behave, before writing code.</p>
+
+  <div class="panel">
+    <svg class="sketch" viewBox="0 0 960 430" role="img" aria-label="Design sketch: top-down view of the field and a side view of the kick">
+      <!-- top-down view -->
+      <text x="20" y="28" fill="#22d3ee" font-size="13">TOP-DOWN (x → right, z → downfield)</text>
+      <rect x="40" y="60" width="200" height="340" fill="none" stroke="#9aa3c7" stroke-width="1.5" stroke-dasharray="6 4" rx="4"/>
+      <rect x="248" y="60" width="200" height="340" fill="none" stroke="#9aa3c7" stroke-width="1.5" stroke-dasharray="6 4" rx="4"/>
+      <text x="100" y="54" fill="#9aa3c7" font-size="11">stands L</text>
+      <text x="310" y="54" fill="#9aa3c7" font-size="11">stands R</text>
+      <rect x="70" y="60" width="350" height="340" fill="rgba(46,139,58,.18)" stroke="#2e8b3a" stroke-width="2"/>
+      <rect x="70" y="60" width="350" height="34" fill="rgba(18,63,143,.45)" stroke="#2e8b3a"/>
+      <text x="206" y="82" fill="#eef1ff" font-size="11">end zone</text>
+      <g stroke="#eef1ff" stroke-opacity=".35">
+        <line x1="70" y1="130" x2="420" y2="130"/><line x1="70" y1="170" x2="420" y2="170"/>
+        <line x1="70" y1="210" x2="420" y2="210"/><line x1="70" y1="250" x2="420" y2="250"/>
+        <line x1="70" y1="290" x2="420" y2="290"/><line x1="70" y1="330" x2="420" y2="330"/>
+        <line x1="70" y1="370" x2="420" y2="370"/>
+      </g>
+      <line x1="225" y1="66" x2="265" y2="66" stroke="#ffd23f" stroke-width="4"/>
+      <text x="275" y="70" fill="#ffd23f" font-size="11">goal posts</text>
+      <g fill="#d62828"><circle cx="205" cy="222" r="5"/><circle cx="220" cy="222" r="5"/><circle cx="235" cy="222" r="5"/><circle cx="250" cy="222" r="5"/><circle cx="265" cy="222" r="5"/><circle cx="280" cy="222" r="5"/></g>
+      <g fill="#1f5fd6"><circle cx="212" cy="236" r="5"/><circle cx="227" cy="236" r="5"/><circle cx="242" cy="236" r="5"/><circle cx="257" cy="236" r="5"/><circle cx="272" cy="236" r="5"/></g>
+      <text x="300" y="232" fill="#eef1ff" font-size="11">line of scrimmage</text>
+      <path d="M245 318 L150 70 M245 318 L340 70" stroke="#22d3ee" stroke-width="1.2" stroke-dasharray="4 4" fill="none"/>
+      <rect x="236" y="310" width="18" height="14" fill="#22d3ee" rx="2"/>
+      <text x="262" y="322" fill="#22d3ee" font-size="11">camera = kicker</text>
+      <text x="262" y="338" fill="#9aa3c7" font-size="10">← → move x, ↑ ↓ move z</text>
+      <text x="262" y="352" fill="#9aa3c7" font-size="10">no rotation</text>
+      <path d="M245 305 C 240 250, 245 150, 245 70" stroke="#ffd23f" stroke-width="2" fill="none"/>
+      <!-- side view -->
+      <text x="500" y="28" fill="#22d3ee" font-size="13">SIDE VIEW (the kick)</text>
+      <line x1="500" y1="330" x2="940" y2="330" stroke="#2e8b3a" stroke-width="3"/>
+      <rect x="520" y="300" width="18" height="14" fill="#22d3ee" rx="2"/>
+      <text x="512" y="352" fill="#22d3ee" font-size="11">eye height y≈3</text>
+      <path d="M545 325 Q 720 90 915 262" stroke="#ffd23f" stroke-width="2.5" fill="none"/>
+      <text x="640" y="150" fill="#ffd23f" font-size="11">projectile: y = v_y·t − ½g·t²</text>
+      <line x1="880" y1="330" x2="880" y2="286" stroke="#ffd23f" stroke-width="4"/>
+      <line x1="880" y1="286" x2="880" y2="170" stroke="#ffd23f" stroke-width="3"/>
+      <line x1="870" y1="286" x2="892" y2="286" stroke="#ffd23f" stroke-width="3"/>
+      <text x="790" y="300" fill="#eef1ff" font-size="11">crossbar 3.33 yd</text>
+      <line x1="600" y1="330" x2="600" y2="298" stroke="#1f5fd6" stroke-width="10"/>
+      <line x1="614" y1="330" x2="614" y2="296" stroke="#d62828" stroke-width="10"/>
+      <text x="580" y="372" fill="#9aa3c7" font-size="11">players (scaled instances)</text>
+      <!-- render modes -->
+      <g transform="translate(500,395)">
+        <rect x="0" y="0" width="130" height="28" rx="6" fill="none" stroke="#9aa3c7"/><text x="10" y="18" fill="#eef1ff" font-size="11">[1] wireframe</text>
+        <rect x="145" y="0" width="140" height="28" rx="6" fill="none" stroke="#9aa3c7"/><text x="155" y="18" fill="#eef1ff" font-size="11">[2] raster lines</text>
+        <rect x="300" y="0" width="140" height="28" rx="6" fill="none" stroke="#9aa3c7"/><text x="310" y="18" fill="#eef1ff" font-size="11">[3] triangles</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h3 style="margin-top:0">How it should look</h3>
+      <p>A Friday-night football stadium: a dark sky with stars, a striped green field with white yard lines and colored end
+        zones, yellow goal posts, bleachers full of fans on both sidelines, light towers in the corners, and two teams lined up for a
+        field goal. It should read clearly as wireframe lines at 1600×1000 and still look good as chunky 5×5 pixels at
+        320×200.</p>
+    </div>
+    <div class="panel">
+      <h3 style="margin-top:0">How it should behave</h3>
+      <p>The camera is the kicker. It only translates, with no rotation, so you aim by stepping left or right and choose the
+        distance by moving up and back. <kbd>Space</kbd> kicks. The ball follows a real projectile arc, wind pushes it
+        sideways, and the game calls the result: <em>good</em>, <em>wide left/right</em>, <em>under the crossbar</em> or <em>short</em>.
+        A made kick makes the team jump and the crowd flash. <kbd>R</kbd> resets everything.</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin-top:0">Design decisions</h3>
+    <ul>
+      <li><strong>Units are yards.</strong> Everything uses real football dimensions: a 53.3-yard-wide field, a 3.33-yard crossbar and uprights 6.17 yards apart. That makes the physics and scoring honest.</li>
+      <li><strong>One scene, three renderers.</strong> All three levels draw the same models and camera, so switching modes shows exactly what each rendering technique changes.</li>
+      <li><strong>Few shapes, many instances.</strong> Players, goal posts, stands and coolers are each defined once around the origin and placed many times with a position vector and a scale factor. For example, linemen are 1.1–1.2× and skill players about 0.95×.</li>
+    </ul>
+  </div>
+
+  <!-- ============ FEATURES ============ -->
+  <hr class="sep">
+  <p class="section-eyebrow">02 · Features &amp; Controls</p>
+  <h2 class="section-title">Playing the game</h2>
+  <p class="section-sub">Open the <a class="inline" href="https://jkrek.github.io/cg-project1/" target="_blank">live app</a>, click the canvas, and use the keyboard.</p>
+
+  <div class="panel">
+    <table>
+      <tr><th>Key</th><th>What it does</th></tr>
+      <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Move the camera left / right (x)</td></tr>
+      <tr><td><kbd>↑</kbd> <kbd>↓</kbd></td><td>Move the camera forward / back (z). This changes the kick distance.</td></tr>
+      <tr><td><kbd>W</kbd> <kbd>S</kbd></td><td>Raise / lower the camera (y) for a higher view</td></tr>
+      <tr><td><kbd>A</kbd> <kbd>D</kbd></td><td>Aim the kick left / right to fight the wind</td></tr>
+      <tr><td><kbd>Space</kbd></td><td>Hold to charge the power meter, release to kick. Above 90% power the kick can shank.</td></tr>
+      <tr><td><kbd>F</kbd></td><td>Ball-cam: the camera follows the ball in flight (translation only)</td></tr>
+      <tr><td><kbd>C</kbd></td><td>Cycle team color schemes</td></tr>
+      <tr><td><kbd>R</kbd></td><td>Reset the camera, objects and score to the initial scene</td></tr>
+      <tr><td><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></td><td>Switch renderer: wireframe 1600×1000 / raster lines 320×200 / filled triangles 320×200</td></tr>
+      <tr><td><kbd>G</kbd></td><td>Toggle the pixel-grid outline (modes 2–3)</td></tr>
+      <tr><td><kbd>Z</kbd></td><td>Show the depth buffer as grayscale (mode 3)</td></tr>
+    </table>
+  </div>
+
+  <p><strong>Scoring.</strong> Made kicks are worth 3 points, or 5 from 50+ yards. The HUD tracks score, makes/attempts, streak,
+    best streak, longest make, wind and kick distance. Kicks that clip an upright get a <em>DOINK!</em>.</p>
+
+  <div class="gallery" style="margin-top:22px">
+    <figure><img src="img/cgp1-wireframe.jpg" alt="Level 1 wireframe" loading="lazy"><figcaption><b>Level 1: wireframe.</b> Every edge is projected with the pinhole camera and drawn with the canvas <code>lineTo</code> at 1600×1000.</figcaption></figure>
+    <figure><img src="img/cgp1-raster-lines.jpg" alt="Level 2 raster lines" loading="lazy"><figcaption><b>Level 2: raster lines.</b> The same edges, drawn by my own line algorithm into a 320×200 pixel array and shown as 5×5 squares.</figcaption></figure>
+    <figure><img src="img/cgp1-triangles.jpg" alt="Level 3 filled triangles" loading="lazy"><figcaption><b>Level 3: filled triangles.</b> Surfaces are made of triangles, filled pixel by pixel with a barycentric coverage test, with occlusion from a depth buffer.</figcaption></figure>
+    <figure><img src="img/cgp1-depth.jpg" alt="Depth buffer view" loading="lazy"><figcaption><b>Depth buffer (Z key).</b> The stored depth for each pixel. Brighter is closer. This is what decides which triangle wins each pixel.</figcaption></figure>
+    <figure><img src="img/cgp1-kick.jpg" alt="Kick in flight" loading="lazy"><figcaption><b>Kick in flight.</b> The ball follows a projectile arc. Its shadow on the grass helps you judge height and distance at low resolution.</figcaption></figure>
+    <figure><img src="img/cgp1-ballcam.jpg" alt="Ball-cam" loading="lazy"><figcaption><b>Ball-cam (F key).</b> The camera translates along with the ball, still without rotating, so you ride the kick through the uprights.</figcaption></figure>
+    <figure><img src="img/cgp1-good.jpg" alt="Made field goal celebration" loading="lazy"><figcaption><b>It's good!</b> The field-goal unit jumps and the crowd rows flash team colors.</figcaption></figure>
+    <figure><img src="img/cgp1-high.jpg" alt="High camera view" loading="lazy"><figcaption><b>Raised camera (W key).</b> A higher view of the whole scene: stands, light towers, players, pylons and the sideline coolers.</figcaption></figure>
+  </div>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <hr class="sep">
+  <p class="section-eyebrow">03 · Implementation</p>
+  <h2 class="section-title">The graphics behind it</h2>
+  <p class="section-sub">How each course concept shows up in the code, in the order the pipeline runs.</p>
+
+  <h3>1 · 3D objects as vertices, edges and triangles</h3>
+  <p>Each object type is a <strong>model</strong>: a list of vertex coordinates centered at the origin, a list of edges (index pairs) for
+    wireframe, and a list of triangles (index triples) for filled rendering. Each edge or triangle also carries a color key such as
+    <code>"jersey"</code> or <code>"helmet"</code>. Most models are built from a helper that adds an axis-aligned box: 8 vertices,
+    12 edges and 12 triangles (two per face).</p>
+<pre><span class="c">// Object types: field segment, yard line, goal post, player, football,
+// cube (the Level 0 cube, used as sideline coolers), pylon, bleachers, light tower, ball shadow</span>
+const PLAYER = newModel("player");
+addBox(PLAYER, 0, 0.45 - PL_CY, 0, 0.5, 0.9, 0.3, "pants");     <span class="c">// legs</span>
+addBox(PLAYER, 0, 1.3  - PL_CY, 0, 0.8, 0.8, 0.4, "jersey");    <span class="c">// torso + shoulder pads</span>
+addBox(PLAYER, 0, 1.87 - PL_CY, 0, 0.35, 0.35, 0.35, "helmet"); <span class="c">// helmet</span></pre>
+
+  <h3>2 · Instances: translate and scale, no rotation</h3>
+  <p>An <strong>instance</strong> is a model plus a position vector, a scale factor and a color map. To place a vertex in the world,
+    the code scales it and then translates it. To move into camera space, it subtracts the camera position. The camera never rotates,
+    so this subtraction is the whole view transform.</p>
+  <div class="formula">world = s · v + p &nbsp;&nbsp;→&nbsp;&nbsp; camera = world − c</div>
+<pre>function toCamera(v, inst) {
+  return {
+    x: v[0] * inst.scale + inst.pos.x - camera.x,
+    y: v[1] * inst.scale + inst.pos.y - camera.y,
+    z: v[2] * inst.scale + inst.pos.z - camera.z,
+  };
+}</pre>
+
+  <h3>3 · Pinhole camera projection</h3>
+  <p>The camera looks down +z. By similar triangles, a point at camera-space (x, y, z) lands on the image plane at x/z and y/z.
+    Multiplying by a focal length <code>F</code>, taken from a 70° horizontal field of view, turns that into pixels. Shifting by half
+    the screen puts (0,0) in the center, and y is flipped because screen rows grow downward. The same function drives both displays;
+    only <code>F</code> and the screen size change (1600×1000 vs 320×200).</p>
+  <div class="formula">F = (W / 2) / tan(fov / 2) &nbsp;&nbsp; u = W/2 + F·x/z &nbsp;&nbsp; v = H/2 − F·y/z</div>
+  <p>Far objects shrink because z is larger, which is perspective. It's why the far goal posts look small and the field lines converge
+    toward the horizon.</p>
+
+  <h3>4 · Objects behind the camera</h3>
+  <p>Dividing by z breaks down when z ≤ 0: points behind the pinhole flip upside down and blow up. So before projecting, every edge is
+    <strong>clipped against a near plane</strong> at z = 0.3. If both ends are behind it, the edge is skipped. If one end is, that end
+    is moved to where the edge crosses the plane. Triangles use the same idea (Sutherland–Hodgman), which can turn a triangle into a
+    four-sided polygon that is re-split into two triangles. The camera also has simple collision checks, so it can't walk inside a
+    player or a goal post.</p>
+
+  <h3>5 · Level 2: drawing my own lines</h3>
+  <p>The raster display is a <code>320 × 200</code> 2D array of colors that starts filled with the background color. Instead of
+    <code>ctx.lineTo</code>, each projected edge is drawn with the <strong>incremental line algorithm</strong> from class. For slopes
+    between −1 and 1, it steps one pixel at a time in u and adds the slope m to v each step. For steeper lines it swaps roles, stepping
+    in v and adding 1/m to u, so steep lines don't come out as gaps. It samples at pixel centers. Lines are first clipped to the screen
+    rectangle (Liang–Barsky) so the loop never walks thousands of off-screen pixels.</p>
+<pre>if (Math.abs(dx) >= Math.abs(dy)) {            <span class="c">// shallow: step in u</span>
+  const m = dy / dx;
+  let v = y0 + m * (uStart + 0.5 - x0);
+  for (let u = uStart; u <= uEnd; u++) {
+    setPixelColor(u, Math.floor(v), color);
+    v += m;                                      <span class="c">// incremental step</span>
+  }
+} else { <span class="c">/* steep: same idea, step in v and add 1/m to u */</span> }</pre>
+  <p>After every edge is written into the array, the draw pass paints each stored pixel as a 5×5 rectangle on the 1600×1000 canvas.
+    The <kbd>G</kbd> key overlays the pixel grid so the individual pixels are visible.</p>
+
+  <h3>6 · Level 3: which pixels does a triangle cover?</h3>
+  <p>For each triangle, the renderer projects its three vertices, takes their <strong>bounding box</strong> (min/max u and v, clamped to
+    the screen), and tests every pixel center inside it. The test uses <strong>barycentric coordinates</strong> computed from areas:
+    each weight is the area of the sub-triangle opposite a vertex divided by the whole triangle's area. The pixel is inside only if
+    all three weights are ≥ 0. The same signed-area expression is the "half-plane" edge test, and dividing by the signed total area
+    makes it work no matter which way the triangle winds.</p>
+<pre>const area = edgeFn(p0, p1, p2);
+const w0 = edgeFn(p1, p2, P) / area;             <span class="c">// weight of p0</span>
+const w1 = edgeFn(p2, p0, P) / area;             <span class="c">// weight of p1</span>
+const w2 = 1 - w0 - w1;                          <span class="c">// weights sum to 1</span>
+if (w0 < 0 || w1 < 0 || w2 < 0) continue;        <span class="c">// outside the triangle</span></pre>
+
+  <h3>7 · Occlusion with a depth buffer</h3>
+  <p>With hundreds of overlapping triangles, the painter's algorithm would need sorting and still fails when triangles overlap in depth.
+    Instead there is a <strong>z-buffer</strong>: one depth value per pixel, reset every frame. The barycentric weights that decided
+    coverage also interpolate depth across the triangle. I interpolate <strong>1/z</strong> rather than z, because after perspective
+    division 1/z varies linearly across the screen, so the result is correct. A pixel is written only if its 1/z is larger (closer)
+    than what's stored, so triangles can be drawn in any order. The <kbd>Z</kbd> key shows this buffer directly.</p>
+
+  <h3>8 · Color and shading</h3>
+  <p>Every surface has a base color from its instance, such as team jerseys, turf stripes or yellow posts. To keep boxes from looking
+    flat, each triangle gets a normal from the <strong>cross product</strong> of two of its edges. Its brightness is scaled by the dot
+    product between that normal and a fixed light direction. This is flat (per-triangle) Lambert shading.</p>
+
+  <h3>9 · Small touches that are still graphics</h3>
+  <ul>
+    <li><strong>Stars at infinity.</strong> Stars are stored as directions, not points, so moving the camera never shifts them. That's
+      the same zero-parallax behavior real stars have. In the raster modes they sit at depth 0, so any geometry covers them.</li>
+    <li><strong>Ball shadow.</strong> A flat quad on the grass directly under the ball. At 320×200 it's the easiest way to read the ball's height.</li>
+    <li><strong>Faster pixel drawing.</strong> Neighboring pixels in a row that share a color are painted with one wider rectangle. The
+      result looks identical but uses about 10× fewer canvas calls, which took Level 3 from about 18 ms to about 5 ms per frame.</li>
+  </ul>
+
+  <!-- ============ FUTURE WORK ============ -->
+  <hr class="sep">
+  <p class="section-eyebrow">04 · Future work</p>
+  <h2 class="section-title">What I'd do next</h2>
+  <div class="panel">
+    <ul style="margin:0">
+      <li><strong>Camera rotation.</strong> Add yaw so you can aim by turning instead of stepping sideways, with a proper view matrix.</li>
+      <li><strong>Back-face culling.</strong> Give every model a consistent winding order and skip triangles facing away, which would roughly halve the triangle work.</li>
+      <li><strong>Anti-aliasing.</strong> Try the coverage and diamond-rule line methods from class, and a top-left fill rule so neighboring triangles never double-cover shared edges.</li>
+      <li><strong>Smooth shading and textures.</strong> Interpolate per-vertex colors (perspective-correct) and add yard numbers and end-zone text as textures.</li>
+      <li><strong>Game feel.</strong> A spinning ball, crowd noise, a blocked-kick chance from the rush, and touch controls for phones.</li>
+    </ul>
+  </div>
+
+  <!-- ============ VIDEO ============ -->
+  <hr class="sep" id="video">
+  <p class="section-eyebrow">05 · Demo</p>
+  <h2 class="section-title">Video walkthrough</h2>
+  <p class="section-sub">A narrated tour of the three renderers, the controls, and the graphics concepts.</p>
+  <!-- TODO(Jared): replace this block with your YouTube embed, e.g.
+       <div class="video"><iframe src="https://www.youtube.com/embed/VIDEO_ID" title="Project 1 demo" allowfullscreen></iframe></div>
+       and add a plain link under it. -->
+  <div class="todo">Demo video coming soon.</div>
+
+  <!-- ============ AI USE ============ -->
+  <hr class="sep">
+  <p class="section-eyebrow">06 · AI use</p>
+  <h2 class="section-title">How I used AI</h2>
+  <!-- TODO(Jared): rewrite this in your own words and check it against the course AI guidelines before submitting. -->
+  <div class="panel">
+    <p style="margin-top:0">I used Claude (Anthropic) as a coding assistant on this project. I chose the concept and gave it the
+      assignment spec and course slides. It drafted the initial implementation of the renderers and game logic, captured screenshots,
+      and helped draft this write-up.</p>
+  </div>
+
+  <!-- ============ LINKS ============ -->
+  <hr class="sep">
+  <p class="section-eyebrow">07 · Links</p>
+  <h2 class="section-title">Try it &amp; read the code</h2>
+  <div class="btns">
+    <a class="btn primary" href="https://jkrek.github.io/cg-project1/" target="_blank">▶ Hosted app: jkrek.github.io/cg-project1</a>
+    <a class="btn" href="https://github.com/Jkrek/cg-project1" target="_blank">GitHub: Jkrek/cg-project1</a>
+  </div>
+
+  <footer>Built &amp; maintained by Jared Krekeler · <a class="inline" href="/coursework.html">CS5160 coursework</a></footer>
+</div>
+</body>
+</html>
