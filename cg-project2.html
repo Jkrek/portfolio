@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jared Krekeler | CS5160 Project 2: Skyport Archipelago</title>
+<meta name="description" content="Computer Graphics I Project 2: a cube world built with WebGL 2. Terrain sampled from height and color maps, jets and a rocket on Bezier curves, a ringed planet and a day/night cycle, all made of one cube.">
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070a14; --panel:rgba(15,19,33,.55); --border:rgba(60,70,110,.45);
+    --ink:#eef1ff; --muted:#9aa3c7; --cyan:#22d3ee; --purple:#8b5cf6; --lime:#a3e635; --gold:#ffd23f;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--bg);
+    background-image:
+      radial-gradient(1200px 600px at 15% -10%, rgba(139,92,246,.18), transparent 60%),
+      radial-gradient(1000px 700px at 95% 0%, rgba(34,211,238,.12), transparent 55%),
+      radial-gradient(900px 900px at 50% 120%, rgba(163,230,53,.06), transparent 60%);
+    -webkit-font-smoothing:antialiased; line-height:1.65;
+  }
+  .stars{position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.55;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, #fff, transparent),
+      radial-gradient(1px 1px at 70% 20%, #cfe3ff, transparent),
+      radial-gradient(1px 1px at 40% 70%, #fff, transparent),
+      radial-gradient(1px 1px at 85% 60%, #bfe9ff, transparent),
+      radial-gradient(1px 1px at 55% 45%, #fff, transparent),
+      radial-gradient(1px 1px at 10% 80%, #e7d7ff, transparent);
+    background-repeat:repeat; background-size:600px 600px;}
+  .wrap{position:relative; z-index:1; max-width:1040px; margin:0 auto; padding:26px 22px 80px}
+
+  .topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:34px; flex-wrap:wrap; gap:12px}
+  .back{font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); text-decoration:none; transition:color .2s}
+  .back:hover{color:var(--cyan)}
+  .toplinks a{color:var(--muted); text-decoration:none; font-size:14px; margin-left:18px; transition:color .2s}
+  .toplinks a:hover{color:var(--cyan)}
+
+  .eyebrow{font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--cyan); margin:0 0 8px}
+  h1{font-family:'Space Grotesk',sans-serif; font-weight:700; letter-spacing:-.02em; font-size:clamp(32px,5.2vw,50px); margin:0 0 8px; line-height:1.03}
+  .course{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:clamp(18px,2.6vw,22px); margin:0 0 14px}
+  .course b{color:var(--lime); font-weight:600}
+  .lead{color:var(--muted); font-size:16px; max-width:720px; margin:0 0 20px}
+  .lead strong{color:var(--ink)}
+
+  .btns{display:flex; gap:10px; flex-wrap:wrap; margin:0 0 28px}
+  .btn{display:inline-flex; align-items:center; gap:7px; padding:10px 16px; border-radius:12px; font-size:14px; font-weight:600;
+    text-decoration:none; color:var(--ink); border:1px solid var(--border); background:rgba(15,19,33,.7); transition:border-color .2s, transform .2s}
+  .btn:hover{border-color:rgba(34,211,238,.6); transform:translateY(-1px)}
+  .btn.primary{background:linear-gradient(135deg,var(--purple),var(--cyan)); border-color:transparent; color:#fff}
+
+  .hero-shot{border-radius:18px; overflow:hidden; border:1px solid var(--border); background:#050510}
+  .hero-shot img{display:block; width:100%; height:auto}
+
+  hr.sep{border:none; border-top:1px solid var(--border); margin:50px 0 26px}
+  .section-eyebrow{font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--cyan); margin:0 0 6px}
+  .section-title{font-family:'Space Grotesk',sans-serif; font-weight:700; letter-spacing:-.02em; font-size:clamp(24px,3.4vw,32px); margin:0 0 6px}
+  .section-sub{color:var(--muted); font-size:15px; margin:0 0 24px}
+  h3{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:20px; margin:28px 0 8px}
+  p, li{color:var(--muted); font-size:15.5px}
+  p strong, li strong{color:var(--ink); font-weight:600}
+  a.inline{color:var(--cyan)}
+  code{font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--lime); background:rgba(163,230,53,.07); padding:1px 5px; border-radius:5px}
+
+  .panel{background:var(--panel); border:1px solid var(--border); border-radius:18px; padding:22px 24px; margin:0 0 20px; backdrop-filter:blur(6px)}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:20px}
+  @media(max-width:760px){ .grid2{grid-template-columns:1fr} }
+
+  .sketch{width:100%; height:auto; display:block}
+  .sketch text{font-family:'JetBrains Mono',monospace}
+
+  table{width:100%; border-collapse:collapse; font-size:14.5px}
+  th, td{text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); vertical-align:top}
+  th{font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--cyan); font-weight:500}
+  td{color:var(--muted)}
+  td:first-child{color:var(--ink); white-space:nowrap}
+  kbd{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink); background:rgba(255,255,255,.06); border:1px solid var(--border);
+    border-bottom-width:2px; border-radius:6px; padding:1px 7px}
+
+  .gallery{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:18px}
+  figure{margin:0; background:var(--panel); border:1px solid var(--border); border-radius:14px; overflow:hidden}
+  figure img{display:block; width:100%; height:auto; background:#050510}
+  figcaption{padding:10px 14px 12px; font-size:13.5px; color:var(--muted)}
+  figcaption b{color:var(--ink); font-weight:600}
+
+  pre{font-family:'JetBrains Mono',monospace; font-size:12.5px; line-height:1.55; color:#d6dcff; background:rgba(5,6,13,.85);
+    border:1px solid var(--border); border-radius:12px; padding:14px 16px; overflow-x:auto; margin:12px 0 16px}
+  pre .c{color:#6f7aa6}
+  .formula{font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--ink); background:rgba(139,92,246,.08);
+    border:1px solid rgba(139,92,246,.35); border-radius:10px; padding:10px 14px; margin:10px 0 14px; overflow-x:auto}
+
+  .todo{border:1px dashed rgba(255,210,63,.7); background:rgba(255,210,63,.06); border-radius:14px; padding:16px 18px; color:var(--gold); font-size:14.5px}
+  .video{position:relative; aspect-ratio:16/9; border-radius:14px; overflow:hidden; border:1px solid var(--border); background:#050510}
+  .video iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
+
+  footer{margin-top:60px; color:var(--muted); font-size:13px; font-family:'JetBrains Mono',monospace; text-align:center}
+  .note-small{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); margin:10px 0 0}
+  .maps-row{display:grid; grid-template-columns:1fr 1fr; gap:18px; max-width:720px; margin:0 auto}
+  @media(max-width:560px){ .maps-row{grid-template-columns:1fr} }
+  h2{margin-top:0}
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="wrap">
+
+  <div class="topbar">
+    <a class="back" href="/coursework.html">← back to CS5160 coursework</a>
+    <div class="toplinks">
+      <a href="https://jkrek.github.io/cg-project2/" target="_blank">Play</a>
+      <a href="https://github.com/Jkrek/cg-project2" target="_blank">Code</a>
+      <a href="#video">Video</a>
+    </div>
+  </div>
+
+  <!-- ============ HERO ============ -->
+  <p class="eyebrow">CS5160 · Project 2 · Nov 2026</p>
+  <h1>Skyport Archipelago</h1>
+  <p class="course"><b>Cube World</b>: a volcanic island chain, a rocket launch and a ringed planet, all made of one cube</p>
+  <p class="lead">
+    For Project 2 the only model we were allowed was a cube, so I built a whole world out of it. A chain of volcanic islands
+    comes from <strong>two PNG images</strong> (a grayscale height map and a color map), three futuristic jets fly a looping
+    <strong>Bézier route</strong> around them, a rocket launches off a pad on one of the islands, and a ringed gas giant hangs in
+    the sky while the sun goes through a full <strong>day/night cycle</strong>. It's plain JavaScript and <strong>WebGL&nbsp;2</strong>, no
+    three.js or any other library. Every mountain, wing, smoke puff and star-lit planet is the same 2×2×2 cube, drawn hundreds of
+    thousands of times.
+  </p>
+  <div class="btns">
+    <a class="btn primary" href="https://jkrek.github.io/cg-project2/" target="_blank">▶ Open the live app</a>
+    <a class="btn" href="https://github.com/Jkrek/cg-project2" target="_blank">Source on GitHub</a>
+    <a class="btn" href="#video">Demo video</a>
+  </div>
+  <div class="hero-shot"><img src="img/cgp2-l3-hero.jpg" alt="The archipelago at midday: a volcano island, an atoll, a launch tower with a rocket, three jets in formation and a ringed gas giant in the sky, all built from cubes"></div>
+  <p class="note-small">Built for laptops with a decent GPU. The default 128×128 grid runs anywhere; 512×512 draws 262,144 cubes and needs more horsepower.</p>
+
+  <!-- ============ DESIGN ============ -->
+  <hr class="sep">
+  <p class="section-eyebrow">01 · Design</p>
+  <h2 class="section-title">The plan</h2>
+  <p class="section-sub">What I wanted the world to look like and how it should behave, before writing the code.</p>
+
+  <div class="panel">
+    <svg class="sketch" viewBox="0 0 960 470" role="img" aria-label="Design sketch: top-down map of the islands with the jet loop and rocket path, and a side view of the sky layers">
+      <defs>
+        <marker id="arrowC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#22d3ee"/></marker>
+        <marker id="arrowG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#a3e635"/></marker>
+        <marker id="arrowY" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ffd23f"/></marker>
+      </defs>
+
+      <!-- ===== top-down map ===== -->
+      <text x="20" y="26" fill="#22d3ee" font-size="13">TOP-DOWN (x →, z ↓), 100 × 100 units</text>
+      <rect x="40" y="55" width="360" height="360" fill="rgba(10,47,92,.55)" stroke="#9aa3c7" stroke-width="1.2" stroke-dasharray="6 4" rx="3"/>
+      <text x="44" y="430" fill="#9aa3c7" font-size="10">grid of n × n cubes covers this square (n = 64 … 512)</text>
+      <!-- islands -->
+      <path d="M120 170 C120 120 175 105 210 118 C250 130 275 160 270 205 C268 250 250 290 205 300 C160 308 118 285 112 245 C106 215 118 195 120 170 z" fill="rgba(107,176,75,.55)" stroke="#a3e635" stroke-width="1.5"/>
+      <path d="M170 205 C170 185 200 178 212 192 C224 206 214 228 196 228 C180 228 170 220 170 205 z" fill="rgba(127,120,110,.8)" stroke="#9aa3c7"/>
+      <circle cx="192" cy="205" r="7" fill="#ff5a1f"/>
+      <text x="128" y="262" fill="#eef1ff" font-size="11">volcano + lava crater</text>
+      <path d="M70 300 C90 285 120 290 140 310 C155 325 150 345 128 360 C100 378 72 372 64 350 C80 350 98 340 100 325 C92 315 78 312 70 300 z" fill="rgba(107,176,75,.5)" stroke="#a3e635" stroke-width="1.5"/>
+      <text x="58" y="392" fill="#eef1ff" font-size="11">crescent island</text>
+      <circle cx="328" cy="134" r="30" fill="none" stroke="#a3e635" stroke-width="9" stroke-opacity=".6"/>
+      <text x="300" y="183" fill="#eef1ff" font-size="11">atoll</text>
+      <path d="M285 300 C290 270 330 262 350 280 C372 300 365 350 340 365 C312 380 282 360 285 330 z" fill="rgba(107,176,75,.5)" stroke="#a3e635" stroke-width="1.5"/>
+      <rect x="306" y="312" width="16" height="16" fill="#9a9da3" stroke="#ffd23f"/>
+      <rect x="326" y="314" width="6" height="12" fill="#c0392b"/>
+      <text x="270" y="392" fill="#eef1ff" font-size="11">launch pad + tower</text>
+      <circle cx="245" cy="350" r="5" fill="rgba(107,176,75,.6)"/><circle cx="258" cy="90" r="5" fill="rgba(107,176,75,.6)"/><circle cx="375" cy="230" r="5" fill="rgba(107,176,75,.6)"/><circle cx="80" cy="140" r="6" fill="rgba(107,176,75,.6)"/>
+      <!-- jet loop -->
+      <path d="M83 91 C114 50 207 56 256 69 C305 83 366 138 378 170 C390 203 356 229 328 264 C300 299 256 371 213 379 C170 387 90 362 69 314 C47 266 52 132 83 91" fill="none" stroke="#ffd23f" stroke-width="2" stroke-dasharray="7 5"/>
+      <g fill="#fff"><circle cx="83" cy="91" r="4"/><circle cx="256" cy="69" r="4"/><circle cx="378" cy="170" r="4"/><circle cx="328" cy="264" r="4"/><circle cx="213" cy="379" r="4"/><circle cx="69" cy="314" r="4"/></g>
+      <path d="M150 63 l14 -2 l-10 9 z" fill="#ffd23f"/>
+      <text x="96" y="50" fill="#ffd23f" font-size="11">3 jets: closed loop of 6 cubic Béziers</text>
+      <!-- rocket path -->
+      <path d="M314 318 C 300 270, 265 235, 225 160" fill="none" stroke="#a3e635" stroke-width="2" marker-end="url(#arrowG)"/>
+      <text x="300" y="236" fill="#a3e635" font-size="10">rocket heads off</text>
+      <text x="300" y="248" fill="#a3e635" font-size="10">toward −x, −z</text>
+      <!-- planet direction -->
+      <line x1="352" y1="100" x2="395" y2="62" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrowC)"/>
+      <text x="300" y="80" fill="#22d3ee" font-size="10">planet far out</text>
+
+      <!-- ===== side view ===== -->
+      <text x="450" y="26" fill="#22d3ee" font-size="13">SIDE VIEW (height y), not to scale</text>
+      <path d="M470 60 Q 700 -10 940 60" fill="none" stroke="#ffd23f" stroke-width="1.2" stroke-dasharray="3 5"/>
+      <circle cx="520" cy="58" r="9" fill="#ffd23f"/>
+      <text x="470" y="100" fill="#ffd23f" font-size="10">sun: east 06:00 → west 18:00</text><text x="470" y="112" fill="#ffd23f" font-size="10">moon opposite</text>
+      <rect x="455" y="40" width="490" height="400" fill="none" stroke="#8b5cf6" stroke-width="1" stroke-dasharray="2 6"/>
+      <text x="740" y="458" fill="#8b5cf6" font-size="10">skybox = the cube, around the camera</text>
+      <line x1="460" y1="372" x2="940" y2="372" stroke="#22d3ee" stroke-width="2"/>
+      <text x="466" y="392" fill="#22d3ee" font-size="10">sea level (gray &lt; 64 → water cube, waves)</text>
+      <path d="M500 372 L520 360 L540 352 L560 340 L575 322 L590 300 L600 285 L610 282 L620 288 L632 302 L648 326 L670 346 L700 360 L720 372 z" fill="rgba(107,176,75,.45)" stroke="#a3e635"/>
+      <rect x="603" y="281" width="10" height="5" fill="#ff5a1f"/>
+      <text x="570" y="274" fill="#eef1ff" font-size="10">peak ≈ 24 units</text>
+      <path d="M740 372 L760 362 L800 360 L830 364 L850 372 z" fill="rgba(107,176,75,.45)" stroke="#a3e635"/>
+      <rect x="805" y="320" width="5" height="40" fill="#c0392b"/>
+      <rect x="794" y="342" width="6" height="18" fill="#eef1ff"/>
+      <!-- jets band -->
+      <rect x="470" y="190" width="300" height="70" fill="rgba(255,210,63,.07)" stroke="#ffd23f" stroke-dasharray="4 4"/>
+      <text x="478" y="206" fill="#ffd23f" font-size="10">jet loop: y = 14 … 42, banks into turns</text>
+      <path d="M520 238 l20 -4 l-6 8 z M560 225 l20 -4 l-6 8 z M545 248 l20 -4 l-6 8 z" fill="#eef1ff"/>
+      <!-- rocket cubic -->
+      <path d="M797 340 C 797 250, 760 170, 700 90" fill="none" stroke="#a3e635" stroke-width="2" marker-end="url(#arrowG)"/>
+      <g fill="#a3e635"><circle cx="797" cy="340" r="4"/><circle cx="797" cy="230" r="4"/><circle cx="760" cy="150" r="4"/></g>
+      <text x="805" y="234" fill="#a3e635" font-size="10">P1 straight above P0</text>
+      <text x="805" y="246" fill="#a3e635" font-size="10">→ lifts off vertically</text>
+      <text x="700" y="80" fill="#a3e635" font-size="10">P3 far away: vanish, reset</text>
+      <!-- planet -->
+      <circle cx="890" cy="140" r="34" fill="rgba(204,158,107,.5)" stroke="#e2c08d"/>
+      <ellipse cx="890" cy="140" rx="62" ry="13" fill="none" stroke="#c8bba5" stroke-width="3" transform="rotate(-22 890 140)"/>
+      <circle cx="840" cy="105" r="6" fill="#9aa3c7"/>
+      <text x="835" y="200" fill="#eef1ff" font-size="10">gas giant + moon</text>
+      <text x="835" y="212" fill="#9aa3c7" font-size="10">tilted, spinning</text>
+    </svg>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h3 style="margin-top:0">How it should look</h3>
+      <p>A tropical volcanic archipelago at the scale of a toy: deep blue water that turns turquoise near the beaches, sand, grass,
+        dark forest patches, gray rock and a snowcap on the big volcano with glowing lava in the crater. One island has a rocket
+        launch site, one is an atoll with a lagoon, and a few rocky islets are scattered around. Above it, sleek white jets and a
+        huge ringed planet make it feel a little sci-fi. I wanted the cubes to stay <em>visible</em>, so it reads as a cube world and
+        not a smooth mesh.</p>
+    </div>
+    <div class="panel">
+      <h3 style="margin-top:0">How it should behave</h3>
+      <p>The camera slowly circles the islands on its own, and you can drag to orbit and scroll to zoom. Three jets fly a loop in
+        formation, banking into the turns. Every so often the rocket lifts off its pad, pitches over, leaves a smoke trail, disappears
+        into the distance and is back on the pad a few seconds later. In the last level time passes: sunrise, noon, an orange sunset,
+        then night with stars, moonlight and glowing lava, rocket flames and wingtip lights. Each project level gets its own tab so you
+        can see the pieces build up.</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin-top:0">A few decisions I made early</h3>
+    <ul>
+      <li><strong>The terrain is always 100 × 100 world units.</strong> Changing the grid from 64² to 512² changes how many cubes there are
+        and how big each one is, not the size of the island. So the jets' flight path and the launch pad stay in the same place at any
+        resolution.</li>
+      <li><strong>One draw call per object, not per cube.</strong> 512 × 512 is 262,144 cubes. Drawing them one at a time the way the class
+        example does would be 262,144 draw calls every frame, so everything uses <strong>instanced drawing</strong> from the start.</li>
+      <li><strong>I made my own images.</strong> Instead of downloading a height map, I wrote a small Python script that generates a matching
+        1024×1024 height map and color map (fractal noise, island shapes, a crater and a flat launch pad). That way the color map lines
+        up exactly with the heights, and I could paint in features like the lava and the pad markings.</li>
+    </ul>
+  </div>
+
+  <div class="maps-row">
+    <figure><img src="img/cgp2-heightmap.png" alt="Grayscale height map" loading="lazy"><figcaption><b>heightmap.png</b>, 1024×1024 grayscale. Ocean floor is 20–63, land is 64–255.</figcaption></figure>
+    <figure><img src="img/cgp2-colormap.png" alt="Color map" loading="lazy"><figcaption><b>colormap.png</b>, 1024×1024. Depth-shaded water, beaches, biomes by height and slope, lava and the launch pad.</figcaption></figure>
+  </div>
+
+  <!-- ============ FEATURES ============ -->
+  <hr class="sep">
+  <p class="section-eyebrow">02 · Features &amp; Controls</p>
+  <h2 class="section-title">Using it</h2>
+  <p class="section-sub">Open the <a class="inline" href="https://jkrek.github.io/cg-project2/" target="_blank">live app</a>. The tabs across the top are the project levels, and the panel on the right has the controls for whichever level you're on.</p>
+
+  <figure style="margin-bottom:22px"><img src="img/cgp2-ui-level2.jpg" alt="The full interface: header with title and info, a stats readout, the level tabs, the 3D view and the control panel" loading="lazy"><figcaption><b>The interface.</b> Header with the title, my name and a short description; a live readout of FPS, cubes drawn, draw calls and how long the last terrain build took; one tab per level; and a side panel that explains the level and holds its controls.</figcaption></figure>
+
+  <div class="panel">
+    <table>
+      <tr><th>Input</th><th>What it does</th></tr>
+      <tr><td>Drag</td><td>Orbit the camera around the island</td></tr>
+      <tr><td>Scroll</td><td>Zoom (changes the orbit radius)</td></tr>
+      <tr><td><kbd>0</kbd> … <kbd>7</kbd></td><td>Switch level: 0, 1a, 1b, 1c, 1d, 2, 3, 4</td></tr>
+      <tr><td><kbd>Space</kbd></td><td>Pause / resume the automatic orbit</td></tr>
+      <tr><td><kbd>P</kbd></td><td>Show the Bézier paths: control points, handles and subdivision points (Levels 3–4)</td></tr>
+      <tr><td><kbd>C</kbd></td><td>Cycle camera: orbit / chase the lead jet / launch camera on the pad (Levels 3–4)</td></tr>
+      <tr><td><kbd>H</kbd></td><td>Hide the whole UI, for clean screenshots and recording</td></tr>
+    </table>
+  </div>
+
+  <div class="panel">
+    <table>
+      <tr><th>Panel control</th><th>Levels</th><th>What it changes</th></tr>
+      <tr><td>Grid resolution</td><td>1a–4</td><td>10² up to 512² cubes</td></tr>
+      <tr><td>Cube size within its cell</td><td>1a–2</td><td>Leaves gaps between cubes so you can see each one</td></tr>
+      <tr><td>Height procedure, tallest cube, new seed</td><td>1b–1d</td><td>Fractal value noise, random, or ripples</td></tr>
+      <tr><td>Vertex color procedure, lighting on/off</td><td>1c</td><td>Height gradient, world-position rainbow, normals, or one color per cube</td></tr>
+      <tr><td>Sampling method</td><td>2</td><td>Box filter (average) vs nearest (one pixel)</td></tr>
+      <tr><td>Tallest cube, height curve k, sea level</td><td>2</td><td>How gray values turn into heights and water</td></tr>
+      <tr><td>Your own height / color map</td><td>2</td><td>Upload any PNGs and the world rebuilds from them</td></tr>
+      <tr><td>Camera, show paths, flatness tolerance, constant speed, launch</td><td>3–4</td><td>Sky objects and the Bézier visualizations</td></tr>
+      <tr><td>Time of day, day length, let time pass, waves, haze</td><td>4</td><td>The day/night cycle and atmosphere</td></tr>
+      <tr><td>Orbit speed, save screenshot</td><td>all</td><td>Camera speed; downloads the current frame as a PNG</td></tr>
+    </table>
+  </div>
+
+  <h3>Walking through the levels</h3>
+  <div class="gallery">
+    <figure><img src="img/cgp2-l0-cube.jpg" alt="Level 0: one 2x2x2 cube" loading="lazy"><figcaption><b>Level 0, one cube.</b> The single 2×2×2 cube everything else is made of, spinning so all six faces show. Colors are the face normals.</figcaption></figure>
+    <figure><img src="img/cgp2-l1a-grid.jpg" alt="Level 1a: flat grid of cubes" loading="lazy"><figcaption><b>Level 1a, the grid.</b> The cube translated to the center of every cell on the x-z plane. Here 64×64 with gaps so the cubes read individually.</figcaption></figure>
+    <figure><img src="img/cgp2-l1b-heights.jpg" alt="Level 1b: noise heights" loading="lazy"><figcaption><b>Level 1b, heights.</b> Each cube scaled in y by fractal value noise, with a falloff that sinks the edges into the sea. Colored by height.</figcaption></figure>
+    <figure><img src="img/cgp2-l1b-random.jpg" alt="Level 1b: random heights" loading="lazy"><figcaption><b>Level 1b, random.</b> Same thing with plain random numbers per cube. Random is noisy; noise is random numbers that are <em>smooth</em>.</figcaption></figure>
+    <figure><img src="img/cgp2-l1c-rainbow.jpg" alt="Level 1c: rainbow vertex colors" loading="lazy"><figcaption><b>Level 1c, rainbow.</b> Every vertex gets a hue from its world position, lighting off. The smooth gradients across each face are the rasterizer interpolating.</figcaption></figure>
+    <figure><img src="img/cgp2-l1c-gradient.jpg" alt="Level 1c: height gradient vertex colors" loading="lazy"><figcaption><b>Level 1c, height gradient.</b> Bottom vertices dark, top vertices the cube's color, so every side wall fades from dark to light.</figcaption></figure>
+    <figure><img src="img/cgp2-l2-box-256.jpg" alt="Level 2: image terrain at 256 by 256" loading="lazy"><figcaption><b>Level 2, from images.</b> 256×256 cubes sampled from the two PNGs. Water is any gray below the sea level.</figcaption></figure>
+    <figure><img src="img/cgp2-l2-512.jpg" alt="Level 2: 512 by 512 terrain close up" loading="lazy"><figcaption><b>Level 2 at 512×512.</b> 262,144 cubes. Captured on my laptop's GPU at a steady 120 fps.</figcaption></figure>
+    <figure><img src="img/cgp2-l3-paths.jpg" alt="Level 3: Bezier paths shown from above" loading="lazy"><figcaption><b>Level 3, the paths.</b> White = anchors, pink = handles (P1, P2) with dotted lines back to their anchor, yellow/green dots = the recursive subdivision points.</figcaption></figure>
+    <figure><img src="img/cgp2-l3-pad.jpg" alt="Level 3: launch pad and rocket" loading="lazy"><figcaption><b>Launch site.</b> The tower is a lattice of thin cubes; the rocket's round body is three overlapping boxes; pad lights glow.</figcaption></figure>
+    <figure><img src="img/cgp2-l3-launch.jpg" alt="Level 3: rocket launching with smoke" loading="lazy"><figcaption><b>Liftoff (launch camera).</b> The rocket follows one cubic Bézier and accelerates; the smoke trail is cubes that grow, rise and shrink away.</figcaption></figure>
+    <figure><img src="img/cgp2-l3-chase.jpg" alt="Level 3: chase camera behind the jets" loading="lazy"><figcaption><b>Chase camera (C).</b> Riding behind the formation. The jets point along the curve's tangent and roll into turns.</figcaption></figure>
+    <figure><img src="img/cgp2-l4-sunrise.jpg" alt="Level 4: sunrise" loading="lazy"><figcaption><b>Level 4, 06:24.</b> Sunrise: low warm light from the east, an orange horizon glow, and dark west-facing walls.</figcaption></figure>
+    <figure><img src="img/cgp2-l4-noon.jpg" alt="Level 4: noon" loading="lazy"><figcaption><b>12:30.</b> High white sun, blue sky, light haze toward the horizon.</figcaption></figure>
+    <figure><img src="img/cgp2-l4-sunset.jpg" alt="Level 4: sunset" loading="lazy"><figcaption><b>17:53.</b> Sunset turns the sky, the fog and the ambient light orange.</figcaption></figure>
+    <figure><img src="img/cgp2-l4-night.jpg" alt="Level 4: night" loading="lazy"><figcaption><b>22:30.</b> Moonlight, twinkling stars, glowing lava, pad lights and jet wingtip lights.</figcaption></figure>
+  </div>
+
+  <!-- ============ IMPLEMENTATION ============ -->
+  <hr class="sep">
+  <p class="section-eyebrow">03 · Implementation</p>
+  <h2 class="section-title">How it actually works</h2>
+  <p class="section-sub">Where the class concepts show up in the code, roughly in the order the pipeline runs. The code is split into
+    <code>math.js</code>, <code>bezier.js</code>, <code>renderer.js</code>, <code>terrain.js</code>, <code>sky.js</code> and <code>main.js</code>,
+    and every file is commented section by section.</p>
+
+  <h3>The one cube: vertices, edges and triangles</h3>
+  <p>A cube has 8 corners, 12 edges and 6 faces, and WebGL can only draw triangles, so each face is 2 triangles: 12 in total. But it's
+    stored as <strong>24 vertices</strong>, not 8. Each corner touches 3 faces that point different ways, and a vertex can only carry one
+    normal, so every corner is stored once per face (6 × 4 = 24). An <strong>index buffer</strong> then lists the 36 corners of the 12
+    triangles by number, so the 2 triangles of a face share 2 of its 4 vertices instead of repeating them. Every face is wound
+    counter-clockwise when seen from outside, which lets <strong>back-face culling</strong> skip the faces pointing away from the camera.</p>
+<pre><span class="c">// For each face: its normal n and two axes u, v that span it.
+// Corners = n ± u ± v, counter-clockwise from outside (u × v = n).</span>
+for (const [su, sv] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+  vertices.push(n[0] + su*u[0] + sv*v[0], ..., n[0], n[1], n[2]);   <span class="c">// position, then normal</span>
+}
+indices.push(b, b + 1, b + 2,  b, b + 2, b + 3);                    <span class="c">// 2 triangles per face</span></pre>
+
+  <h3>Translation and scaling (Levels 1a, 1b)</h3>
+  <p>Each cube in the grid is the same 2×2×2 cube <strong>scaled</strong> to its cell's width and its height, then <strong>translated</strong>
+    to its cell's center. Because the cube runs from −1 to 1, the scale is half the size, and the center sits at y = h/2 so the
+    bottom is on the ground. In matrix form that's T · S · corner; since S is diagonal, the vertex shader just writes it out:</p>
+  <div class="formula">world = uObject · ( offset + corner ⊙ scale ) &nbsp;&nbsp; offset = (x, h/2, z) &nbsp; scale = (cell/2, h/2, cell/2)</div>
+  <p><code>uObject</code> is identity for the terrain. For the sky objects it carries their rotation and position (below), so the same
+    shader handles both: each box is scaled and translated into its place on the model, then the whole model is rotated and moved into
+    the world.</p>
+
+  <h3>Instanced drawing: one draw call for 262,144 cubes</h3>
+  <p>The class example sets a <code>uModel</code> uniform and issues a draw call for every cube. That's fine for 100 cubes, but at 512² the
+    CPU spends the whole frame talking to the GPU. Instead, each batch of cubes gets a second buffer with <strong>one row per cube</strong>:
+    offset, scale, color and a "kind" (solid, water, glowing, smoke). <code>vertexAttribDivisor(loc, 1)</code> tells WebGL to advance those
+    attributes once per <em>instance</em> instead of once per vertex, and one call draws the whole batch:</p>
+<pre>gl.vertexAttribDivisor(LOC.offset, 1);   <span class="c">// advance once per CUBE, not per vertex</span>
+...
+gl.drawElementsInstanced(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0, cubeCount);</pre>
+  <p>Each batch (terrain, ocean, jet, rocket, flame, smoke, launch tower, planet, moon, debug paths) also has its own
+    <strong>vertex array object</strong> that remembers all its <code>bindBuffer</code> / <code>vertexAttribPointer</code> / divisor settings, so
+    switching batches is one <code>bindVertexArray</code> call. That avoids the bug a classmate described in Discord, where one draw call
+    accidentally reads another program's buffers. The whole Level 4 scene is about <strong>11 draw calls</strong> no matter the resolution.</p>
+
+  <h3>The pinhole camera, as matrices (Level 1d)</h3>
+  <p>Project 1's pinhole camera divided x and y by depth by hand. Here it's the <strong>perspective matrix</strong>: its −1 in the last column
+    copies −z (the distance in front of the camera) into w, and the GPU divides x, y and z by w after the vertex shader. That's the same
+    "divide by depth", which is why far cubes shrink. The field of view is 50° vertical, with near and far planes at 0.5 and 4000.</p>
+  <p>The camera position comes from an orbit, and <strong>lookAt</strong> builds the view matrix from it: three perpendicular axes from cross
+    products (the direction to the target, right, and up), then the inverse of placing the camera, so the whole world moves until the
+    camera sits at the origin looking down −z.</p>
+  <div class="formula">eye = target + r · (cos φ cos θ, sin φ, cos φ sin θ) &nbsp;&nbsp; θ += speed · Δt &nbsp;&nbsp; gl_Position = P · V · world</div>
+  <p>The <strong>depth test</strong> keeps the nearest fragment at each pixel (the hardware version of my Project 1 z-buffer), and back-face
+    culling skips about half the triangles before they're rasterized.</p>
+
+  <h3>Vertex colors and interpolation (Level 1c)</h3>
+  <p>In Level 1c the vertex shader gives every <strong>vertex</strong> its own color from a procedure, for example a hue from its world
+    position, or dark at the bottom and the cube's color at the top. The rasterizer then <strong>interpolates</strong> those colors across
+    each triangle using <strong>barycentric coordinates</strong> (λ₀, λ₁, λ₂), the same weights I computed by hand in Project 1. Each fragment
+    gets λ₀c₀ + λ₁c₁ + λ₂c₂. Lighting is off by default in that tab so you see only the interpolation. The "one color per cube" option
+    gives all vertices the same color, so nothing changes across a face, which makes the contrast obvious.</p>
+
+  <h3>Sampling the images (Level 2)</h3>
+  <p>To read pixels, the PNG is drawn onto a hidden 2D canvas and read back with <code>getImageData</code>. That's blocked on
+    <code>file://</code> pages (the "tainted canvas" error a lot of us hit), because the browser treats a local image as a different origin.
+    Served from GitHub Pages, or <code>python3 -m http.server</code> locally, it works. Uploaded files are read as <code>data:</code> URLs,
+    which never taint the canvas, so the upload pickers work anywhere.</p>
+  <p><strong>"The grid is 100×100 but the image is 1000×1000. How do you pick a color?"</strong> Each cube covers a block of pixels (10×10
+    there). The block's edges are <code>floor(col · W / n)</code>, so it works even when W/n isn't a whole number. Then there are two options,
+    and the app lets you switch between them:</p>
+  <ul>
+    <li><strong>Nearest:</strong> take the one pixel at the block's center. It ignores 99 of the 100 pixels, so thin features like the shoreline
+      foam and the launch pad stripes pop in and out as the resolution changes. That's <strong>aliasing</strong>.</li>
+    <li><strong>Box filter</strong> (the default): average every pixel in the block. Each cube gets the average color of the land it stands for.
+      It's a simple low-pass filter, the same idea as mipmapping a texture before shrinking it.</li>
+  </ul>
+  <div class="grid2">
+    <figure><img src="img/cgp2-l2-box-64.jpg" alt="64 by 64 grid, box filter" loading="lazy"><figcaption><b>64×64, box filter.</b> Soft transitions from turquoise to sand; the crater cells that are part lava, part snow come out a blended salmon color.</figcaption></figure>
+    <figure><img src="img/cgp2-l2-nearest-64.jpg" alt="64 by 64 grid, nearest sampling" loading="lazy"><figcaption><b>64×64, nearest.</b> All-or-nothing colors: stray white foam cubes along the coast, a noisier atoll, and the lava is either fully there or gone.</figcaption></figure>
+  </div>
+  <p><strong>"Gray goes from 0 to 255. How do you turn that into a height?"</strong> Normalize, apply a curve, then scale:</p>
+  <div class="formula">f = (gray / 255)<sup>k</sup> &nbsp;&nbsp; height = f · maxHeight &nbsp;&nbsp; (k = 1.3, maxHeight = 24 by default)</div>
+  <p>A curve k &gt; 1 flattens the lowlands and sharpens the peaks, which looks more like a volcano; k &lt; 1 does the opposite. Anything
+    darker than the <strong>sea level</strong> gray (64) is underwater: its cube is cut off at the water surface and marked as water, so the
+    shader can animate waves and add a sun glint. The color map still decides its color, which is how deep water is dark and shallow water
+    is turquoise. A single huge flat cube just under the surface extends the ocean to the horizon.</p>
+
+  <h3>Bézier curves with de Casteljau (Level 3)</h3>
+  <p>Every moving thing follows <strong>cubic Bézier curves</strong>: four control points P0…P3. To find the point at parameter t, I use
+    <strong>de Casteljau's construction</strong>, the same method as the class's guided subdivision activity. Cut each segment of the control
+    polygon at the fraction t, then cut the new segments, until one point is left:</p>
+<pre>function deCasteljauLevels(points, t) {
+  const levels = [points];
+  let current = points;
+  while (current.length > 1) {
+    const next = [];
+    for (let i = 0; i < current.length - 1; i++) next.push(vec3.lerp(current[i], current[i + 1], t));
+    levels.push(next);                    <span class="c">// P01 P12 P23 → P012 P123 → P0123 = B(t)</span>
+    current = next;
+  }
+  return levels;
+}</pre>
+  <p>That gives exactly the same point as the Bernstein form B(t) = (1−t)³P0 + 3(1−t)²t P1 + 3(1−t)t² P2 + t³P3, but it's built only from
+    "the point a fraction t along a segment". It also gives two things for free:</p>
+  <ul>
+    <li><strong>The tangent.</strong> The two points on the second-to-last level, P012 and P123, lie on the curve's tangent line at B(t).
+      Their difference (normalized) is the direction of travel, which is what points the jets and the rocket.</li>
+    <li><strong>Subdivision.</strong> The left and right edges of the de Casteljau triangle are the control points of the two halves of the
+      curve. The "show paths" option cuts each segment at t = ½ recursively until it passes a <strong>flatness test</strong> (the inner control
+      points are within a tolerance of the chord P0→P3), and draws a small cube at each piece's end. The dots bunch up where the curve
+      bends and spread out where it's straight. The tolerance slider shows the point count change live.</li>
+  </ul>
+
+  <h3>The jets: a smooth loop, constant speed, banking</h3>
+  <p>The jets' route is six anchor points around the islands, joined into a <strong>closed loop of six cubic segments</strong>. For the joins
+    to be smooth (<strong>C1 continuous</strong>, no kink), the handle before an anchor, the anchor and the handle after it have to be on one
+    straight line at equal distances. I pick each anchor's direction from its two neighbors, the way a Catmull-Rom spline does, and put
+    the handles a third of that away:</p>
+  <div class="formula">T<sub>i</sub> = (A<sub>i+1</sub> − A<sub>i−1</sub>) / 2 &nbsp;&nbsp; P0 = A<sub>i</sub> &nbsp; P1 = A<sub>i</sub> + T<sub>i</sub>/3 &nbsp; P2 = A<sub>i+1</sub> − T<sub>i+1</sub>/3 &nbsp; P3 = A<sub>i+1</sub></div>
+  <p><strong>Constant speed.</strong> Moving t at a steady rate doesn't move the jet at a steady speed. Points crowd together where control
+    points are close and spread out where they're far apart (the guided activity's "does t = ½ cut the curve into equal lengths?" question,
+    and the answer is no). So I sample the path once, add up the distances into a table of (t, distance), and each frame look up t by
+    distance with a binary search. That's <strong>arc-length parameterization</strong>. Uncheck "constant speed" and you can watch the jets
+    speed up and slow down.</p>
+  <p><strong>Pointing and banking.</strong> To orient a jet I build a rotation whose columns are its new axes: forward is the tangent, right
+    and up come from cross products with world up (Gram-Schmidt, like lookAt). To bank, I compare this tangent with one a little further
+    along the path; the vertical part of their cross product says how hard and which way it's turning, and I tilt the up vector by that
+    much before taking the cross products. The two wingmen are the same path sampled 9 units behind, shifted ±7 sideways.</p>
+<pre>const right = normalize(cross(upRef, forward));
+const up    = cross(forward, right);
+uObject = fromBasis(right, up, forward, position) · scaling(0.8);   <span class="c">// rotate + translate the whole jet</span></pre>
+
+  <h3>The rocket: one cubic, ease-in, and "far away"</h3>
+  <p>The rocket's flight is a single cubic. P0 is on the pad and P1 is straight above it, so the tangent at t = 0 points straight up and the
+    rocket starts upright with no special case. P2 is high and off to the side and P3 is hundreds of units away, so it pitches over and
+    leaves. Instead of moving t steadily I use <strong>t = τ²</strong> (τ = fraction of the 11-second flight), so it starts slow and
+    accelerates like a real launch. When t reaches 1 it's far away, so it's hidden for 3 seconds and then put back on the pad, exactly what
+    the spec described. The flame is a few glowing cubes with random sizes every frame (flicker), and the smoke trail is cubes dropped at the
+    tail that grow, rise and then shrink to nothing.</p>
+
+  <h3>The planet: rotation and composition</h3>
+  <p>The gas giant is made by testing every cell of a 31³ grid and keeping only a thin <strong>spherical shell</strong> (you can never see the
+    inside, so that saves thousands of cubes). It's colored by latitude bands with a red storm, plus a flat ring with a gap. Its transform is a
+    chain: scale the grid, spin it about y, tilt it, then move it out into the sky. The moon adds an orbit: rotate around the planet, then push
+    out.</p>
+  <div class="formula">planet = T(center) · R<sub>z</sub>(0.42) · R<sub>y</sub>(0.04 t) · S(3) &nbsp;&nbsp; moon = T(center) · R<sub>z</sub>(0.42) · R<sub>y</sub>(0.12 t) · T(112, 10, 0) · R<sub>y</sub>(0.3 t) · S(2.6)</div>
+  <p>Because the transforms only rotate, translate and scale uniformly, <code>mat3(uObject)</code> turns the normals correctly. In general
+    (non-uniform scaling inside the object matrix) you'd need the inverse transpose; here each box's own non-uniform scaling is along the
+    cube's axes, which doesn't change the direction of a face normal.</p>
+
+  <h3>Lighting, the skybox and fog (Level 4)</h3>
+  <ul>
+    <li><strong>Diffuse:</strong> Lambert's cosine law, brightness = max(n · l, 0) with both unit vectors, toward the sun by day and the moon
+      by night. Both fade to zero at the horizon, so the hand-off is smooth.</li>
+    <li><strong>Ambient:</strong> a hemisphere light. Faces pointing up get the sky's color, faces pointing down the ground's, blended by n.y.</li>
+    <li><strong>Water glint:</strong> a Blinn-Phong specular highlight using the half vector between the light and the view direction.</li>
+    <li><strong>Smoke:</strong> "half-Lambert" wrap lighting, n · l × ½ + ½, so smoke turned away from the sun stays soft instead of black.</li>
+    <li><strong>Glow:</strong> lava, flames, the canopy and lights skip lighting entirely and get brighter at night.</li>
+  </ul>
+  <p>The sun moves on a tilted circle (rising in +x at 06:00, setting in −x at 18:00), and almost everything is a smooth function of its
+    height above the horizon: the zenith and horizon colors, the orange sunset tint, the light color, the ambient light, how many stars show
+    and how bright the glowing cubes are.</p>
+  <p>The <strong>skybox is the same cube</strong>, drawn around the camera. I remove the camera's translation from the view matrix (so the sky
+    never gets closer), cull the <em>front</em> faces (we're inside it), and set <code>gl_Position = clip.xyww</code> so every sky fragment
+    lands at depth 1.0, behind everything. The fragment shader gets the interpolated direction to each fragment and computes the sky for
+    that direction: a gradient by elevation, a sun disc and glow, the moon, and stars from hashing the direction into small cells.</p>
+  <p><strong>Fog</strong> fades each fragment toward the horizon color by distance, <code>1 − exp(−(d · density)²)</code>, which hides the
+    edge of the ocean and makes the planet feel far away (it gets a thinner fog than the island).</p>
+
+  <h3>Performance</h3>
+  <p>Measured in Chrome on my laptop (Apple M2 Pro, 2572×1374 canvas at 2× pixel density). 120 fps is the display's refresh rate, so it
+    never dropped a frame:</p>
+  <div class="panel">
+    <table>
+      <tr><th>Grid</th><th>Cubes</th><th>Level 2 (terrain)</th><th>Level 4 (everything)</th></tr>
+      <tr><td>128 × 128 (default)</td><td>16,384</td><td>117 fps</td><td>120 fps</td></tr>
+      <tr><td>256 × 256</td><td>65,536</td><td>120 fps</td><td>120 fps</td></tr>
+      <tr><td>384 × 384</td><td>147,456</td><td>120 fps</td><td>120 fps</td></tr>
+      <tr><td>512 × 512</td><td>262,144</td><td>120 fps</td><td>120 fps</td></tr>
+    </table>
+  </div>
+  <p>I still kept 128² as the default because the spec asks for something that works on most laptops, and integrated graphics on an older
+    machine is a lot weaker than this one. The real limit at high resolutions is the vertex work (24 vertices × 262k cubes ≈ 6.3 million
+    vertices per frame), not draw calls.</p>
+
+  <!-- ============ FUTURE WORK ============ -->
+  <hr class="sep">
+  <p class="section-eyebrow">04 · Future work</p>
+  <h2 class="section-title">What I'd do next</h2>
+  <div class="panel">
+    <ul style="margin:0">
+      <li><strong>Shadows.</strong> Render the scene from the sun into a depth texture and compare against it (shadow mapping). The sunset would look a lot better with the volcano casting a long shadow across the island.</li>
+      <li><strong>Skip hidden faces.</strong> Most cube walls are buried against their neighbors. Only drawing the faces that are exposed, or merging flat runs of cubes into bigger boxes (greedy meshing), would cut the vertex count several times over.</li>
+      <li><strong>Sample the images on the GPU.</strong> Load the maps as textures and look up height and color in the vertex shader, so changing the resolution is instant instead of rebuilding on the CPU.</li>
+      <li><strong>A free-fly camera.</strong> WASD plus mouse look, in addition to the orbit and chase cameras.</li>
+      <li><strong>More life in the sky.</strong> Drifting cube clouds with transparency, and a few more aircraft on different curves.</li>
+    </ul>
+  </div>
+
+  <!-- ============ VIDEO ============ -->
+  <hr class="sep" id="video">
+  <p class="section-eyebrow">05 · Demo</p>
+  <h2 class="section-title">Video walkthrough</h2>
+  <p class="section-sub">Me walking through every level, the controls, and the graphics concepts.</p>
+  <!-- VIDEO: replace this box with the embed below once the video is on YouTube (swap VIDEO_ID).
+  <div class="video"><iframe src="https://www.youtube.com/embed/VIDEO_ID" title="Project 2 demo: Skyport Archipelago" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>
+  <p style="margin-top:10px">Can't see it? <a class="inline" href="https://youtu.be/VIDEO_ID" target="_blank">Watch on YouTube</a></p>
+  -->
+  <div class="todo">Demo video coming soon.</div>
+
+  <!-- ============ AI USE ============ -->
+  <hr class="sep">
+  <p class="section-eyebrow">06 · AI use</p>
+  <h2 class="section-title">How I used AI</h2>
+  <div class="panel">
+    <p style="margin-top:0">I came up with the concept and made the creative decisions: the volcanic archipelago, a futuristic jet formation
+      and rocket launch for the sky, a ringed planet, and a day/night cycle with a skybox. I used Claude (Anthropic) as a coding assistant: it
+      wrote most of the code, generated the height and color maps with a Python script, and helped draft this write-up. I directed the design,
+      tested every level, and can explain how each part of the pipeline works.</p>
+  </div>
+
+  <!-- ============ LINKS ============ -->
+  <hr class="sep">
+  <p class="section-eyebrow">07 · Links</p>
+  <h2 class="section-title">Try it and check out the code</h2>
+  <div class="btns">
+    <a class="btn primary" href="https://jkrek.github.io/cg-project2/" target="_blank">▶ Hosted app: jkrek.github.io/cg-project2</a>
+    <a class="btn" href="https://github.com/Jkrek/cg-project2" target="_blank">GitHub: Jkrek/cg-project2</a>
+  </div>
+
+  <footer>Built &amp; maintained by Jared Krekeler · <a class="inline" href="/coursework.html">CS5160 coursework</a></footer>
+</div>
+</body>
+</html>
